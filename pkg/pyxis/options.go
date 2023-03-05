@@ -13,6 +13,7 @@ type Options struct {
 	Retries   int    // Retries is the number of retries for the port
 	RateLimit int    // RateLimit is the rate of port scan requests
 	Timeout   int    // Timeout is the seconds to wait for ports to respond
+	Proxy     string // http/socks5 proxy to use
 	Output    string // Output is the file to write found ports to.
 }
 
@@ -37,6 +38,10 @@ func ParseOptions() *Options {
 	flagSet.CreateGroup("optimization", "Optimization",
 		flagSet.IntVar(&options.Retries, "retries", DefaultRetries, "number of retries for the port scan"),
 		flagSet.IntVar(&options.Timeout, "timeout", DefaultTimeout, "millisecond to wait before timing out"),
+	)
+
+	flagSet.CreateGroup("debug", "Debug",
+		flagSet.StringVar(&options.Proxy, "proxy", "", "list of http/socks5 proxy to use (comma separated or file input)"),
 	)
 
 	_ = flagSet.Parse()
