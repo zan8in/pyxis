@@ -6,7 +6,7 @@ import (
 
 type Scanner struct {
 	options *Options
-	result  *result.Result
+	Result  *result.Result
 }
 
 func NewScanner(options *Options) (*Scanner, error) {
@@ -29,7 +29,7 @@ func NewScanner(options *Options) (*Scanner, error) {
 
 	scanner := &Scanner{
 		options: options,
-		result:  result.NewResult(),
+		Result:  result.NewResult(),
 	}
 
 	return scanner, nil
@@ -42,6 +42,12 @@ func (s *Scanner) Run() error {
 	}
 
 	runner.ApiRun()
+
+	if runner.Result.HasHostResult() {
+		for hostResult := range runner.Result.GetHostResult() {
+			s.Result.AddHostResult(hostResult)
+		}
+	}
 
 	return nil
 }

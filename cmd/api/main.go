@@ -1,6 +1,10 @@
 package main
 
-import "github.com/zan8in/pyxis/pkg/pyxis"
+import (
+	"fmt"
+
+	"github.com/zan8in/pyxis/pkg/pyxis"
+)
 
 func main() {
 	scanner, err := pyxis.NewScanner(&pyxis.Options{
@@ -10,4 +14,10 @@ func main() {
 		panic(err)
 	}
 	scanner.Run()
+
+	if scanner.Result.HasHostResult() {
+		for hostResult := range scanner.Result.GetHostResult() {
+			fmt.Println(hostResult.FullUrl)
+		}
+	}
 }
