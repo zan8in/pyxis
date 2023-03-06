@@ -1,6 +1,8 @@
 package pyxis
 
 import (
+	"runtime"
+
 	"github.com/pkg/errors"
 	"github.com/zan8in/goflags"
 	"github.com/zan8in/gologger"
@@ -40,6 +42,10 @@ func ParseOptions() *Options {
 		flagSet.IntVar(&options.Timeout, "timeout", DefaultTimeout, "millisecond to wait before timing out"),
 	)
 
+	flagSet.CreateGroup("rate-limit", "Rate-limit",
+		flagSet.IntVar(&options.RateLimit, "rate", DefaultRateLimit, "packets to send per second"),
+	)
+
 	flagSet.CreateGroup("debug", "Debug",
 		flagSet.StringVar(&options.Proxy, "proxy", "", "list of http/socks5 proxy to use (comma separated or file input)"),
 	)
@@ -69,5 +75,16 @@ func (options *Options) validateOptions() (err error) {
 		return errors.Wrap(errZeroValue, "timeout")
 	}
 
+	if options.RateLimit <= 0 {
+		return errors.Wrap(errZeroValue, "rate")
+	} else if options.RateLimit == DefaultRateLimit {
+		options.autoChangeRateLimit()
+	}
+
 	return err
+}
+
+func (options *Options) autoChangeRateLimit() {
+	NumCPU := runtime.NumCPU()
+	options.RateLimit = NumCPU * 50
 }

@@ -1,17 +1,19 @@
 package retryhttpclient
 
 import (
-	"bytes"
 	"crypto/tls"
-	"errors"
 	"io"
 	"net"
 	"net/http"
+	"net/http/httptrace"
 	"net/url"
+	"regexp"
 	"runtime"
-	"strings"
 	"time"
 
+	"github.com/zan8in/pyxis/pkg/result"
+	"github.com/zan8in/pyxis/pkg/util/randutil"
+	"github.com/zan8in/pyxis/pkg/util/stringutil"
 	"github.com/zan8in/retryablehttp"
 	"golang.org/x/net/context"
 	"golang.org/x/net/proxy"
@@ -172,136 +174,61 @@ func makeCheckRedirectFunc(followRedirects bool, maxRedirects int) checkRedirect
 	}
 }
 
-func simpleRtryHttpGet(target string) ([]byte, int, error) {
-	if len(target) == 0 {
-		return []byte(""), 0, errors.New("no target specified")
-	}
+func GetHttpRequest(target string) (result.HostResult, error) {
+	var (
+		err    error
+		result result.HostResult
+	)
 
 	req, err := retryablehttp.NewRequest(http.MethodGet, target, nil)
 	if err != nil {
-		return nil, 0, err
+		return result, err
 	}
 
-	// req.Header.Add("User-Agent", utils.RandomUA())
+	req.Header.Add("User-Agent", randutil.RandomUA())
 
-	resp, err := RtryNoRedirect.Do(req)
-	if err != nil {
-		if resp != nil {
-			resp.Body.Close()
-		}
-		return []byte(""), 0, err
+	// latency
+	var milliseconds int64
+	start := time.Now()
+	trace := httptrace.ClientTrace{}
+	trace.GotFirstResponseByte = func() {
+		milliseconds = time.Since(start).Nanoseconds() / 1e6
 	}
-
-	reader := io.LimitReader(resp.Body, maxDefaultBody)
-	respBody, err := io.ReadAll(reader)
-	if err != nil {
-		resp.Body.Close()
-		return []byte(""), 0, err
-	}
-
-	return respBody, resp.StatusCode, err
-}
-
-// body is parameters 1
-// headers is parameters 2
-// statusCode is parameters 3
-// err is parameters 4
-func simpleRtryRedirectGet(target string) ([]byte, map[string][]string, int, error) {
-	if len(target) == 0 {
-		return []byte(""), nil, 0, errors.New("no target specified")
-	}
-
-	req, err := retryablehttp.NewRequest(http.MethodGet, target, nil)
-	if err != nil {
-		return nil, nil, 0, err
-	}
-
-	// req.Header.Add("User-Agent", utils.RandomUA())
+	req = req.WithContext(httptrace.WithClientTrace(req.Context(), &trace))
 
 	resp, err := RtryRedirect.Do(req)
 	if err != nil {
 		if resp != nil {
 			resp.Body.Close()
 		}
-		return []byte(""), nil, 0, err
+		return result, err
 	}
+	defer resp.Body.Close()
 
 	reader := io.LimitReader(resp.Body, maxDefaultBody)
 	respBody, err := io.ReadAll(reader)
 	if err != nil {
-		resp.Body.Close()
-		return []byte(""), nil, 0, err
+		return result, err
 	}
 
-	newheader := make(map[string][]string)
-	for k := range resp.Header {
-		newheader[k] = []string{resp.Header.Get(k)}
+	utf8RespBody := stringutil.Str2UTF8(string(respBody))
 
-	}
+	result.FullUrl = target
+	result.StatusCode = resp.StatusCode
+	result.Title = getTitle(utf8RespBody)
+	result.ResponseTime = milliseconds
+	result.ContentLength = resp.ContentLength
+	result.Body = utf8RespBody
 
-	return respBody, newheader, resp.StatusCode, nil
+	return result, nil
 }
 
-// Check http or https And Check host live status
-// returns response body and status code
-// status code = -1 means server responded failed
-func CheckHttpsAndLives(target string) (string, int) {
-	if strings.HasPrefix(target, "http://") || strings.HasPrefix(target, "https://") {
-		_, statusCode, err := simpleRtryHttpGet(target)
-		if err == nil {
-			return target, statusCode
-		}
-		return target, -1
+var RegexTitle = regexp.MustCompile(`(?i:)<title>(.*?)</title>`)
+
+func getTitle(body string) string {
+	titleSlice := RegexTitle.FindStringSubmatch(body)
+	if len(titleSlice) == 2 {
+		return titleSlice[1]
 	}
-
-	u, err := url.Parse("http://" + target)
-	if err != nil {
-		return target, -1
-	}
-
-	port := u.Port()
-
-	switch {
-	case port == "80" || len(port) == 0:
-		_, statusCode, err := simpleRtryHttpGet("http://" + target)
-		if err == nil {
-			return "http://" + target, statusCode
-		}
-		return target, -1
-
-	case port == "443" || strings.HasSuffix(port, "443"):
-		_, statusCode, err := simpleRtryHttpGet("https://" + target)
-		if err == nil {
-			return "https://" + target, statusCode
-		}
-		return target, -1
-	}
-
-	resp, statusCode, err := simpleRtryHttpGet("http://" + target)
-	if err == nil {
-		if bytes.Contains(resp, []byte("<title>400 The plain HTTP request was sent to HTTPS port</title>")) {
-			return "https://" + target, statusCode
-		}
-		return "http://" + target, statusCode
-	}
-
-	_, statusCode, err = simpleRtryHttpGet("https://" + target)
-	if err == nil {
-		return "https://" + target, statusCode
-	}
-
-	return target, -1
-}
-
-// Reverse URL Get request
-func ReverseGet(target string) ([]byte, error) {
-	if len(target) == 0 {
-		return []byte(""), errors.New("target not find")
-	}
-	respBody, _, err := simpleRtryHttpGet(target)
-	return respBody, err
-}
-
-func FingerPrintGet(target string) ([]byte, map[string][]string, int, error) {
-	return simpleRtryRedirectGet(target)
+	return ""
 }
