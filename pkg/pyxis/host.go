@@ -82,6 +82,6 @@ func (r *Runner) processTarget(target string) error {
 	}
 
 	r.hostChan <- target
-	gologger.Info().Msg(target)
+	// gologger.Info().Msg(target)
 	return err
 }

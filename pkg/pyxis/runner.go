@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
@@ -22,7 +23,12 @@ type Runner struct {
 
 	hostChan chan string
 
+	ResultChan chan *result.HostResult
+	Result     *result.Result
+
 	hostTempFile string
+
+	Phase Phase
 }
 
 func NewRunner(options *Options) (*Runner, error) {
@@ -31,8 +37,10 @@ func NewRunner(options *Options) (*Runner, error) {
 	)
 
 	runner := &Runner{
-		Options:  options,
-		hostChan: make(chan string),
+		Options:    options,
+		hostChan:   make(chan string),
+		ResultChan: make(chan *result.HostResult),
+		Result:     result.NewResult(),
 	}
 
 	if err = retryhttpclient.Init(&retryhttpclient.Options{
@@ -58,17 +66,78 @@ func (r *Runner) Run() error {
 		}
 	}()
 
+	go r.Listener()
+
 	r.start()
+
+	r.Delay()
 
 	return nil
 }
 
+func (r *Runner) ApiRun() error {
+	defer r.Close()
+
+	go func() {
+		if err := r.PreprocessHost(); err != nil {
+			gologger.Fatal().Msg(err.Error())
+		}
+	}()
+
+	go r.ApiListener()
+
+	r.start()
+
+	r.Delay()
+
+	if r.Result.HasHostResult() {
+		for hostResult := range r.Result.GetHostResult() {
+			print(*hostResult)
+		}
+	}
+
+	return nil
+}
+
+func (r *Runner) Delay() {
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			if r.Phase.Is(Done) {
+				break
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+	}()
+	wg.Wait()
+}
+
+func (r *Runner) Listener() {
+	for result := range r.ResultChan {
+		print(*result)
+	}
+	r.Phase.Set(Done)
+}
+
+func (r *Runner) ApiListener() {
+	for result := range r.ResultChan {
+		r.Result.SetHostResult(result.FullUrl, result)
+	}
+	r.Phase.Set(Done)
+}
+
 func (r *Runner) start() {
+	defer close(r.ResultChan)
+
+	r.Phase.Set(Scan)
+
 	for host := range r.hostChan {
 		r.wgscan.Add()
 		go func(host string) {
 			if result, err := r.scanHost(host); err == nil {
-				print(result)
+				r.ResultChan <- &result
 			}
 		}(host)
 	}
@@ -91,8 +160,6 @@ func print(result result.HostResult) {
 
 func (r *Runner) scanHost(host string) (result.HostResult, error) {
 	defer r.wgscan.Done()
-
-	// fmt.Println("\n", host, "---------------\n")
 
 	if len(strings.TrimSpace(host)) == 0 {
 		return result.HostResult{}, fmt.Errorf("host %q is empty", host)
