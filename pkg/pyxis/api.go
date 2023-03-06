@@ -1,6 +1,8 @@
 package pyxis
 
-import "github.com/zan8in/pyxis/pkg/result"
+import (
+	"github.com/zan8in/pyxis/pkg/result"
+)
 
 type Scanner struct {
 	options *Options

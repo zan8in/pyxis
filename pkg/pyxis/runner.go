@@ -90,12 +90,6 @@ func (r *Runner) ApiRun() error {
 
 	r.Delay()
 
-	if r.Result.HasHostResult() {
-		for hostResult := range r.Result.GetHostResult() {
-			print(*hostResult)
-		}
-	}
-
 	return nil
 }
 
