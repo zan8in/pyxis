@@ -74,6 +74,8 @@ func (r *Runner) Run() error {
 
 	r.Delay()
 
+	r.WriteOutput()
+
 	return nil
 }
 
@@ -112,6 +114,7 @@ func (r *Runner) Delay() {
 
 func (r *Runner) Listener() {
 	for result := range r.ResultChan {
+		r.Result.SetHostResult(result.FullUrl, result)
 		print(*result)
 	}
 	r.Phase.Set(Done)
