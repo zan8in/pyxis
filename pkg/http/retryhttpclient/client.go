@@ -211,14 +211,12 @@ func GetHttpRequest(target string) (result.HostResult, error) {
 		return result, err
 	}
 
-	utf8RespBody := stringutil.Str2UTF8(string(respBody))
-
 	result.FullUrl = target
 	result.StatusCode = resp.StatusCode
-	result.Title = getTitle(utf8RespBody)
+	result.Title = getTitle(stringutil.Str2UTF8(string(respBody)))
 	result.ResponseTime = milliseconds
 	result.ContentLength = resp.ContentLength
-	result.Body = utf8RespBody
+	result.Body = string(respBody)
 
 	return result, nil
 }

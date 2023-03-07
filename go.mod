@@ -3,9 +3,11 @@ module github.com/zan8in/pyxis
 go 1.19
 
 require (
+	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/pkg/errors v0.9.1
 	github.com/remeh/sizedwaitgroup v1.0.0
+	github.com/spaolacci/murmur3 v1.1.0
 	github.com/zan8in/goflags v0.0.0-20230204144650-0745934af58a
 	github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373
 	github.com/zan8in/retryablehttp v0.0.0-20230305123201-76eb63e85ecc
@@ -15,6 +17,7 @@ require (
 
 require (
 	github.com/Mzack9999/go-http-digest-auth-client v0.6.0 // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08 // indirect

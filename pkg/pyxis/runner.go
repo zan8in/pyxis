@@ -11,6 +11,7 @@ import (
 
 	"github.com/remeh/sizedwaitgroup"
 	"github.com/zan8in/gologger"
+	"github.com/zan8in/pyxis/pkg/favicon"
 	"github.com/zan8in/pyxis/pkg/http/retryhttpclient"
 	"github.com/zan8in/pyxis/pkg/result"
 )
@@ -149,6 +150,7 @@ func print(result result.HostResult) {
 		result.StatusCode,
 		result.ResponseTime,
 		result.ContentLength,
+		result.FaviconHash,
 	)
 }
 
@@ -178,6 +180,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		if err == nil {
 			result.Host = u.Host
 		}
+		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
 	}
 
@@ -193,6 +196,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		if err == nil {
 			result.Host = u.Host
 		}
+		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
 	}
 
@@ -212,6 +216,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Port = 80
 		result.TLS = false
 		result.Host = parseHost
+		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
 
 	case parsePort == "443":
@@ -222,6 +227,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Port = 443
 		result.TLS = true
 		result.Host = parseHost
+		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
 
 	default:
@@ -236,6 +242,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			result.Host = parseHost
 			result.TLS = true
 			result.FullUrl = HTTPS_PREFIX + parseHost + strPort
+			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 			return result, err
 		}
 
@@ -250,6 +257,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 				}
 				result.TLS = true
 				result.FullUrl = HTTPS_PREFIX + parseHost + strPort
+				result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 				return result, nil
 			}
 			result.Port = 0
@@ -260,39 +268,13 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			}
 			result.TLS = false
 			result.FullUrl = HTTP_PREFIX + parseHost + strPort
+			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 			return result, nil
 		}
 
 	}
 
 	return result, fmt.Errorf("scan host failed")
-}
-
-func (r *Runner) unKonwHttpProtocol(target string) bool {
-	if len(strings.TrimSpace(target)) == 0 {
-		return false
-	}
-	if strings.HasPrefix(target, HTTPS_PREFIX) {
-		return false
-	}
-	if strings.HasPrefix(target, HTTP_PREFIX) {
-		return false
-	}
-	u, err := url.Parse(HTTP_PREFIX + target)
-	if err != nil {
-		return true
-	}
-	parsePort := u.Port()
-
-	if parsePort == "80" {
-		return false
-	}
-
-	if parsePort == "443" {
-		return false
-	}
-
-	return true
 }
 
 func (r *Runner) Close() error {

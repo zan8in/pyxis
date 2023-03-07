@@ -10,19 +10,17 @@ type Result struct {
 }
 
 type HostResult struct {
-	FullUrl         string // The full URL
-	Host            string // example.com or ip addr
-	Port            int    // port number
-	TLS             bool   // true if TLS
-	IP              string // IP address
-	Title           string // title of the response
-	Body            string // body of the response
-	StatusCode      int    // status code of the response
-	ContentLength   int64  // content length of the response
-	ResponseTime    int64  // time of the response
-	FaviconHash     string // favicon hash
-	FaviconFilename string // filename of the favicon
-	FaviconSize     int64  // size of the favicon
+	FullUrl       string // The full URL
+	Host          string // example.com or ip addr
+	Port          int    // port number
+	TLS           bool   // true if TLS
+	IP            string // IP address
+	Title         string // title of the response
+	Body          string // body of the response
+	StatusCode    int    // status code of the response
+	ContentLength int64  // content length of the response
+	ResponseTime  int64  // time of the response
+	FaviconHash   string // favicon hash
 }
 
 func NewResult() *Result {
