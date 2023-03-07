@@ -115,7 +115,7 @@ func (r *Runner) Delay() {
 func (r *Runner) Listener() {
 	for result := range r.ResultChan {
 		r.Result.SetHostResult(result.FullUrl, result)
-		print(*result)
+		r.print()
 	}
 	r.Phase.Set(Done)
 }
@@ -141,21 +141,6 @@ func (r *Runner) start() {
 		}(host)
 	}
 	r.wgscan.Wait()
-}
-
-func print(result result.HostResult) {
-	fmt.Printf("%s[%s][%t][%s][%d][%s][%d][%d][%d][%s]\n",
-		result.FullUrl,
-		result.Title,
-		result.TLS,
-		result.Host,
-		result.Port,
-		result.IP,
-		result.StatusCode,
-		result.ResponseTime,
-		result.ContentLength,
-		result.FaviconHash,
-	)
 }
 
 func (r *Runner) scanHost(host string) (result.HostResult, error) {

@@ -25,6 +25,26 @@ type OutputResult struct {
 	FaviconHash   string `json:"faviconhash,omitempty" csv:"faviconhash"`
 }
 
+func (r *Runner) print() {
+	if r.Result.HasHostResult() {
+		for result := range r.Result.GetHostResult() {
+			fmt.Printf("%s[%s][%t][%s][%d][%s][%d][%d][%d][%s]\n",
+				result.FullUrl,
+				result.Title,
+				result.TLS,
+				result.Host,
+				result.Port,
+				result.IP,
+				result.StatusCode,
+				result.ResponseTime,
+				result.ContentLength,
+				result.FaviconHash,
+			)
+		}
+	}
+
+}
+
 func (r *Runner) WriteOutput() {
 	if !r.Result.HasHostResult() || len(r.Options.Output) == 0 {
 		return
