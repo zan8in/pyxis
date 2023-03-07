@@ -182,3 +182,33 @@ func GetSourceIP(target string) (net.IP, error) {
 
 	return nil, errors.New("could not get source ip")
 }
+
+func ToFQDN(target string) ([]string, error) {
+	if !IsIP(target) {
+		return []string{target}, fmt.Errorf("%s is not an IP", target)
+	}
+	names, err := net.LookupAddr(target)
+	if err != nil {
+		return nil, err
+	}
+	if len(names) == 0 {
+		return names, fmt.Errorf("no names found for ip: %s", target)
+	}
+
+	for i, name := range names {
+		names[i] = stringsutil.TrimSuffixAny(name, ".")
+	}
+
+	return names, nil
+}
+
+func GetDomainIP(target string) string {
+	ips, err := net.LookupIP(target)
+	if err != nil {
+		if addr, err := net.ResolveIPAddr("ip", target); err == nil {
+			return addr.IP.String()
+		}
+		return ""
+	}
+	return ips[0].To4().String()
+}

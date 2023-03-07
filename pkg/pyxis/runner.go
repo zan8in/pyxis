@@ -14,6 +14,7 @@ import (
 	"github.com/zan8in/pyxis/pkg/favicon"
 	"github.com/zan8in/pyxis/pkg/http/retryhttpclient"
 	"github.com/zan8in/pyxis/pkg/result"
+	"github.com/zan8in/pyxis/pkg/util/iputil"
 )
 
 type Runner struct {
@@ -140,7 +141,7 @@ func (r *Runner) start() {
 }
 
 func print(result result.HostResult) {
-	fmt.Println(
+	fmt.Printf("%s[%s][%t][%s][%d][%s][%d][%d][%d][%s]\n",
 		result.FullUrl,
 		result.Title,
 		result.TLS,
@@ -179,6 +180,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		u, err := url.Parse(host)
 		if err == nil {
 			result.Host = u.Host
+			result.IP = iputil.GetDomainIP(u.Host)
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
@@ -195,6 +197,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		u, err := url.Parse(host)
 		if err == nil {
 			result.Host = u.Host
+			result.IP = iputil.GetDomainIP(u.Host)
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
@@ -216,6 +219,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Port = 80
 		result.TLS = false
 		result.Host = parseHost
+		result.IP = iputil.GetDomainIP(parseHost)
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
 
@@ -227,19 +231,21 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Port = 443
 		result.TLS = true
 		result.Host = parseHost
+		result.IP = iputil.GetDomainIP(parseHost)
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
 
 	default:
 		result, err = retryhttpclient.GetHttpRequest(HTTPS_PREFIX + host)
 		if err == nil {
-			result.Port = 0
+			result.Port = 443
 			strPort := ""
 			if intPort, err := strconv.Atoi(parsePort); err == nil {
 				result.Port = intPort
 				strPort = ":" + parsePort
 			}
 			result.Host = parseHost
+			result.IP = iputil.GetDomainIP(parseHost)
 			result.TLS = true
 			result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
@@ -249,24 +255,28 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result, err = retryhttpclient.GetHttpRequest(HTTP_PREFIX + host)
 		if err == nil {
 			if strings.Contains(result.Body, "<title>400 The plain HTTP request was sent to HTTPS port</title>") {
-				result.Port = 0
+				result.Port = 443
 				strPort := ""
 				if intPort, err := strconv.Atoi(parsePort); err == nil {
 					result.Port = intPort
 					strPort = ":" + parsePort
 				}
+				result.Host = parseHost
+				result.IP = iputil.GetDomainIP(parseHost)
 				result.TLS = true
 				result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 				result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 				return result, nil
 			}
-			result.Port = 0
+			result.Port = 80
 			strPort := ""
 			if intPort, err := strconv.Atoi(parsePort); err == nil {
 				result.Port = intPort
 				strPort = ":" + parsePort
 			}
+			result.Host = parseHost
 			result.TLS = false
+			result.IP = iputil.GetDomainIP(parseHost)
 			result.FullUrl = HTTP_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 			return result, nil

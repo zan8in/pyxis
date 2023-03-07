@@ -9,9 +9,9 @@ import (
 var Version = "0.1.0"
 
 var banner = fmt.Sprintf(`
-┌─┐┬─┐┬┌─┐┌─┐
-├─┤├┬┘│├┤ └─┐
-┴ ┴┴└─┴└─┘└─┘ %s
+┌─┐┬ ┬─┐ ┬┬┌─┐
+├─┘└┬┘┌┴┬┘│└─┐
+┴   ┴ ┴ └─┴└─┘ %s
 `, Version)
 
 func ShowBanner() {
