@@ -8,8 +8,7 @@ import (
 )
 
 func main() {
-	// arr, err := iputil.ToFQDN("lankegp.com")
-	addr, err := net.ResolveIPAddr("ip", "http://lankegp.com")
+	addr, err := net.ResolveIPAddr("ip", "http://example.com")
 	fmt.Println(addr, err)
 
 }
