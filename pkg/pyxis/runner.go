@@ -167,8 +167,8 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Host = ""
 		u, err := url.Parse(host)
 		if err == nil {
-			result.Host = u.Host
-			result.IP = iputil.GetDomainIP(u.Host)
+			result.Host = u.Hostname()
+			result.IP = iputil.GetDomainIP(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
@@ -184,8 +184,8 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Host = ""
 		u, err := url.Parse(host)
 		if err == nil {
-			result.Host = u.Host
-			result.IP = iputil.GetDomainIP(u.Host)
+			result.Host = u.Hostname()
+			result.IP = iputil.GetDomainIP(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		return result, nil
@@ -195,7 +195,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 	if err != nil {
 		return result, err
 	}
-	parseHost = u.Host
+	parseHost = u.Hostname()
 	parsePort = u.Port()
 
 	switch {
