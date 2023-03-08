@@ -203,6 +203,9 @@ func ToFQDN(target string) ([]string, error) {
 }
 
 func GetDomainIP(target string) string {
+	if IsIP(target) {
+		return target
+	}
 	ips, err := net.LookupIP(target)
 	if err != nil {
 		if addr, err := net.ResolveIPAddr("ip", target); err == nil {

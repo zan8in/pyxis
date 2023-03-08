@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/zan8in/gologger"
+	"github.com/zan8in/pyxis/pkg/result"
 	"github.com/zan8in/pyxis/pkg/util/fileutil"
 )
 
@@ -25,23 +26,19 @@ type OutputResult struct {
 	FaviconHash   string `json:"faviconhash,omitempty" csv:"faviconhash"`
 }
 
-func (r *Runner) print() {
-	if r.Result.HasHostResult() {
-		for result := range r.Result.GetHostResult() {
-			fmt.Printf("%s[%s][%t][%s][%d][%s][%d][%d][%d][%s]\n",
-				result.FullUrl,
-				result.Title,
-				result.TLS,
-				result.Host,
-				result.Port,
-				result.IP,
-				result.StatusCode,
-				result.ResponseTime,
-				result.ContentLength,
-				result.FaviconHash,
-			)
-		}
-	}
+func (r *Runner) print(result *result.HostResult) {
+	fmt.Printf("%s[%s][%t][%s][%d][%s][%d][%d][%d][%s]\n",
+		result.FullUrl,
+		result.Title,
+		result.TLS,
+		result.Host,
+		result.Port,
+		result.IP,
+		result.StatusCode,
+		result.ResponseTime,
+		result.ContentLength,
+		result.FaviconHash,
+	)
 
 }
 

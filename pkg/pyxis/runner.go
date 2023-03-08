@@ -115,7 +115,7 @@ func (r *Runner) Delay() {
 func (r *Runner) Listener() {
 	for result := range r.ResultChan {
 		r.Result.SetHostResult(result.FullUrl, result)
-		r.print()
+		r.print(result)
 	}
 	r.Phase.Set(Done)
 }
@@ -213,7 +213,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 
 	case parsePort == "443":
 		result, err = retryhttpclient.GetHttpRequest(HTTPS_PREFIX + host)
-		if err == nil {
+		if err != nil {
 			return result, err
 		}
 		result.Port = 443
