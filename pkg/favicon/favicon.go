@@ -30,17 +30,20 @@ func HandleFaviconHash(target, body string) (string, error) {
 	faviconPath := "/favicon.ico"
 
 	if len(potentialURLs) > 0 {
-		fav := potentialURLs[0]
-		if fav[:2] == "//" {
-			faviconPath = "http:" + fav
-		} else {
-			if fav[:4] == "http" {
-				faviconPath = fav
-			} else {
-				faviconPath = target + "/" + strings.Trim(fav, "/")
+		for _, potentialURL := range potentialURLs {
+			if len(potentialURL) > 0 {
+				if potentialURL[:2] == "//" {
+					faviconPath = "http:" + potentialURL
+				} else {
+					if potentialURL[:4] == "http" {
+						faviconPath = potentialURL
+					} else {
+						faviconPath = target + "/" + strings.Trim(potentialURL, "/")
+					}
+				}
+				return faviconPath, nil
 			}
 		}
-		return faviconPath, nil
 	}
 
 	return target + faviconPath, nil
