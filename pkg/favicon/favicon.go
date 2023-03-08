@@ -32,16 +32,18 @@ func HandleFaviconHash(target, body string) (string, error) {
 	if len(potentialURLs) > 0 {
 		for _, potentialURL := range potentialURLs {
 			if len(potentialURL) > 0 {
-				if potentialURL[:2] == "//" {
+				if strings.HasPrefix(potentialURL, "//") {
 					faviconPath = "http:" + potentialURL
-				} else {
-					if potentialURL[:4] == "http" {
-						faviconPath = potentialURL
-					} else {
-						faviconPath = target + "/" + strings.Trim(potentialURL, "/")
-					}
+					return faviconPath, nil
+				} else if strings.HasPrefix(potentialURL, "http") {
+					faviconPath = potentialURL
+					return faviconPath, nil
+				} else if strings.HasSuffix(potentialURL, ".ico") ||
+					strings.HasSuffix(potentialURL, ".png") ||
+					strings.HasSuffix(potentialURL, ".jpg") {
+					faviconPath = target + "/" + strings.Trim(potentialURL, "/")
+					return faviconPath, nil
 				}
-				return faviconPath, nil
 			}
 		}
 	}
