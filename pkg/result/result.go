@@ -21,6 +21,7 @@ type HostResult struct {
 	ContentLength int64  // content length of the response
 	ResponseTime  int64  // time of the response
 	FaviconHash   string // favicon hash
+	FingerPrint   string
 }
 
 func NewResult() *Result {

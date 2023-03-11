@@ -24,10 +24,12 @@ type OutputResult struct {
 	ContentLength int64  `json:"contentlength,omitempty" csv:"contentlength"`
 	ResponseTime  int64  `json:"responsetime,omitempty" csv:"responsetime"`
 	FaviconHash   string `json:"faviconhash,omitempty" csv:"faviconhash"`
+	Fingerprint   string `json:"fingerprint,omitempty" csv:"fingerprint"`
 }
 
 func (r *Runner) print(result *result.HostResult) {
-	fmt.Printf("%s[%s][%t][%s][%d][%s][%d][%d][%d][%s]\n",
+
+	fmt.Printf("%s[%s][%t][%s][%d][%s][%d][%d][%d][%s][%s]\n",
 		result.FullUrl,
 		result.Title,
 		result.TLS,
@@ -38,6 +40,7 @@ func (r *Runner) print(result *result.HostResult) {
 		result.ResponseTime,
 		result.ContentLength,
 		result.FaviconHash,
+		result.FingerPrint,
 	)
 
 }
@@ -78,7 +81,7 @@ func (r *Runner) WriteOutput() {
 	if fileType == fileutil.FILE_CSV {
 		csvutil = csv.NewWriter(file)
 		file.WriteString("\xEF\xBB\xBF")
-		csvutil.Write([]string{"FullURL", "Title", "StatusCode", "Faviconhash", "ContentLength", "ResponseTime", "Host", "IP", "Port", "TLS"})
+		csvutil.Write([]string{"FullURL", "Title", "StatusCode", "Faviconhash", "Fingerprint", "ContentLength", "ResponseTime", "Host", "IP", "Port", "TLS"})
 	}
 
 	for result := range r.Result.GetHostResult() {
@@ -93,6 +96,7 @@ func (r *Runner) WriteOutput() {
 			FaviconHash:   result.FaviconHash,
 			ContentLength: result.ContentLength,
 			ResponseTime:  result.ResponseTime,
+			Fingerprint:   result.FingerPrint,
 		}
 
 		switch fileType {
@@ -131,6 +135,7 @@ func (or *OutputResult) CSV() []string {
 		or.Title,
 		strconv.Itoa(or.StatusCode),
 		or.FaviconHash,
+		or.Fingerprint,
 		fmt.Sprintf("%d", or.ContentLength),
 		fmt.Sprintf("%d", or.ResponseTime),
 		or.Host,

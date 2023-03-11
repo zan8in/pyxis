@@ -9,8 +9,10 @@ import (
 	"net/url"
 	"regexp"
 	"runtime"
+	"strings"
 	"time"
 
+	"github.com/zan8in/libra"
 	"github.com/zan8in/pyxis/pkg/result"
 	"github.com/zan8in/pyxis/pkg/util/randutil"
 	"github.com/zan8in/pyxis/pkg/util/stringutil"
@@ -218,7 +220,43 @@ func GetHttpRequest(target string) (result.HostResult, error) {
 	result.ContentLength = resp.ContentLength
 	result.Body = string(respBody)
 
+	// fingerprint
+	newRespHeader := make(map[string]string)
+	rawHeaderBuilder := strings.Builder{}
+	for k := range resp.Header {
+		newRespHeader[strings.ToLower(k)] = resp.Header.Get(k)
+
+		rawHeaderBuilder.WriteString(k)
+		rawHeaderBuilder.WriteString(": ")
+		rawHeaderBuilder.WriteString(resp.Header.Get(k))
+		rawHeaderBuilder.WriteString("\n")
+	}
+
+	if nlo, err := libra.NewLibraOption(
+		libra.SetTarget(target),
+		libra.SetBody([]byte(stringutil.Str2UTF8(string(respBody)))),
+		libra.SetRaw([]byte(resp.Proto+" "+resp.Status+"\n"+strings.Trim(rawHeaderBuilder.String(), "\n")+"\n\n"+stringutil.Str2UTF8(string(respBody)))),
+		libra.SetRawHeader([]byte(strings.Trim(rawHeaderBuilder.String(), "\n"))),
+		libra.SetHeaders(newRespHeader),
+	); err == nil && nlo != nil {
+		res := nlo.Run()
+		if res != nil && len(res.FingerResult) > 0 {
+			result.FingerPrint = getFingerprint(res.FingerResult)
+		}
+	}
+
 	return result, nil
+}
+
+func getFingerprint(f []string) string {
+	fingerprint := ""
+	if len(f) > 0 {
+		for _, f := range f {
+			fingerprint += "," + f
+		}
+		fingerprint = strings.TrimLeft(fingerprint, ",")
+	}
+	return fingerprint
 }
 
 var RegexTitle = regexp.MustCompile(`(?i:)<title>(.*?)</title>`)
