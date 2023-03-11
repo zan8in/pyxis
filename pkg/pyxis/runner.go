@@ -11,6 +11,7 @@ import (
 
 	"github.com/remeh/sizedwaitgroup"
 	"github.com/zan8in/gologger"
+	"github.com/zan8in/libra"
 	"github.com/zan8in/pyxis/pkg/favicon"
 	"github.com/zan8in/pyxis/pkg/http/retryhttpclient"
 	"github.com/zan8in/pyxis/pkg/result"
@@ -171,6 +172,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			result.IP = iputil.GetDomainIP(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
+		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
 		return result, nil
 	}
 
@@ -188,6 +190,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			result.IP = iputil.GetDomainIP(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
+		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
 		return result, nil
 	}
 
@@ -209,6 +212,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Host = parseHost
 		result.IP = iputil.GetDomainIP(parseHost)
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
+		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
 		return result, nil
 
 	case parsePort == "443":
@@ -221,6 +225,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Host = parseHost
 		result.IP = iputil.GetDomainIP(parseHost)
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
+		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
 		return result, nil
 
 	default:
@@ -237,6 +242,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			result.TLS = true
 			result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
+			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
 			return result, err
 		}
 
@@ -254,6 +260,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 				result.TLS = true
 				result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 				result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
+				result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
 				return result, nil
 			}
 			result.Port = 80
@@ -267,12 +274,41 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			result.IP = iputil.GetDomainIP(parseHost)
 			result.FullUrl = HTTP_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
+			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
 			return result, nil
 		}
 
 	}
 
 	return result, fmt.Errorf("scan host failed")
+}
+
+func getFingerprint(target string, body, raw, rawheader, faviconhash []byte, headers map[string]string) string {
+	if nlo, err := libra.NewLibraOption(
+		libra.SetTarget(target),
+		libra.SetBody(body),
+		libra.SetRaw(raw),
+		libra.SetRawHeader(rawheader),
+		libra.SetHeaders(headers),
+		libra.SetFaviconhash(faviconhash),
+	); err == nil && nlo != nil {
+		res := nlo.Run()
+		if res != nil && len(res.FingerResult) > 0 {
+			return fingerprintSlice2String(res.FingerResult)
+		}
+	}
+	return ""
+}
+
+func fingerprintSlice2String(f []string) string {
+	fingerprint := ""
+	if len(f) > 0 {
+		for _, f := range f {
+			fingerprint += "," + f
+		}
+		fingerprint = strings.TrimLeft(fingerprint, ",")
+	}
+	return fingerprint
 }
 
 func (r *Runner) Close() error {

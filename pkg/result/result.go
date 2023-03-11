@@ -22,6 +22,10 @@ type HostResult struct {
 	ResponseTime  int64  // time of the response
 	FaviconHash   string // favicon hash
 	FingerPrint   string
+	RawBody       []byte //
+	Raw           []byte // raw
+	RawHeader     []byte // header
+	Headers       map[string]string
 }
 
 func NewResult() *Result {

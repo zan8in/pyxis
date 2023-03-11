@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zan8in/libra"
 	"github.com/zan8in/pyxis/pkg/result"
 	"github.com/zan8in/pyxis/pkg/util/randutil"
 	"github.com/zan8in/pyxis/pkg/util/stringutil"
@@ -231,32 +230,12 @@ func GetHttpRequest(target string) (result.HostResult, error) {
 		rawHeaderBuilder.WriteString(resp.Header.Get(k))
 		rawHeaderBuilder.WriteString("\n")
 	}
-
-	if nlo, err := libra.NewLibraOption(
-		libra.SetTarget(target),
-		libra.SetBody([]byte(stringutil.Str2UTF8(string(respBody)))),
-		libra.SetRaw([]byte(resp.Proto+" "+resp.Status+"\n"+strings.Trim(rawHeaderBuilder.String(), "\n")+"\n\n"+stringutil.Str2UTF8(string(respBody)))),
-		libra.SetRawHeader([]byte(strings.Trim(rawHeaderBuilder.String(), "\n"))),
-		libra.SetHeaders(newRespHeader),
-	); err == nil && nlo != nil {
-		res := nlo.Run()
-		if res != nil && len(res.FingerResult) > 0 {
-			result.FingerPrint = getFingerprint(res.FingerResult)
-		}
-	}
+	result.Headers = newRespHeader
+	result.RawBody = []byte(stringutil.Str2UTF8(string(respBody)))
+	result.RawHeader = []byte(strings.Trim(rawHeaderBuilder.String(), "\n"))
+	result.Raw = []byte(resp.Proto + " " + resp.Status + "\n" + strings.Trim(rawHeaderBuilder.String(), "\n") + "\n\n" + stringutil.Str2UTF8(string(respBody)))
 
 	return result, nil
-}
-
-func getFingerprint(f []string) string {
-	fingerprint := ""
-	if len(f) > 0 {
-		for _, f := range f {
-			fingerprint += "," + f
-		}
-		fingerprint = strings.TrimLeft(fingerprint, ",")
-	}
-	return fingerprint
 }
 
 var RegexTitle = regexp.MustCompile(`(?i:)<title>(.*?)</title>`)
