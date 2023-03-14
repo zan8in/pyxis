@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/zan8in/gologger"
+	"github.com/zan8in/pyxis/pkg/logcolor"
 	"github.com/zan8in/pyxis/pkg/result"
 	"github.com/zan8in/pyxis/pkg/util/fileutil"
 )
@@ -29,18 +30,22 @@ type OutputResult struct {
 
 func (r *Runner) print(result *result.HostResult) {
 
-	fmt.Printf("%s[%s][%t][%s][%d][%s][%d][%d][%d][%s][%s]\n",
+	fmt.Printf("%s [%s][%s][%s][%s]\n",
 		result.FullUrl,
-		result.Title,
-		result.TLS,
-		result.Host,
-		result.Port,
-		result.IP,
-		result.StatusCode,
-		result.ResponseTime,
-		result.ContentLength,
-		result.FaviconHash,
-		result.FingerPrint,
+		logcolor.LogColor.Title(result.Title),
+		logcolor.LogColor.Fingerprint(result.FingerPrint),
+		logcolor.LogColor.Faviconhash(result.FaviconHash),
+		logcolor.LogColor.IP(result.IP),
+
+		// result.TLS,
+		// result.Host,
+		// result.Port,
+		// result.IP,
+		// result.StatusCode,
+		// result.ResponseTime,
+		// result.ContentLength,
+		// result.FaviconHash,
+		// result.FingerPrint,
 	)
 
 }
