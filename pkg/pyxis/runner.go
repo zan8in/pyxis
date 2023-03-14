@@ -172,7 +172,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			result.IP = iputil.GetDomainIP(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
+		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
 	}
 
@@ -190,7 +190,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			result.IP = iputil.GetDomainIP(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
+		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
 	}
 
@@ -212,7 +212,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Host = parseHost
 		result.IP = iputil.GetDomainIP(parseHost)
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
+		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
 
 	case parsePort == "443":
@@ -225,7 +225,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		result.Host = parseHost
 		result.IP = iputil.GetDomainIP(parseHost)
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
+		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
 
 	default:
@@ -242,7 +242,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			result.TLS = true
 			result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
+			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 			return result, err
 		}
 
@@ -260,7 +260,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 				result.TLS = true
 				result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 				result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-				result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
+				result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 				return result, nil
 			}
 			result.Port = 80
@@ -274,7 +274,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			result.IP = iputil.GetDomainIP(parseHost)
 			result.FullUrl = HTTP_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), result.Headers)
+			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 			return result, nil
 		}
 
@@ -283,8 +283,9 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 	return result, fmt.Errorf("scan host failed")
 }
 
-func getFingerprint(target string, body, raw, rawheader, faviconhash []byte, headers map[string]string) string {
+func getFingerprint(target string, body, raw, rawheader, faviconhash []byte, status int32, headers map[string]string) string {
 	if nlo, err := libra.NewLibraOption(
+		libra.SetStatus(status),
 		libra.SetTarget(target),
 		libra.SetBody(body),
 		libra.SetRaw(raw),

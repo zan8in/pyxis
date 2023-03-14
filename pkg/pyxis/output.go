@@ -81,7 +81,7 @@ func (r *Runner) WriteOutput() {
 	if fileType == fileutil.FILE_CSV {
 		csvutil = csv.NewWriter(file)
 		file.WriteString("\xEF\xBB\xBF")
-		csvutil.Write([]string{"FullURL", "Title", "StatusCode", "Faviconhash", "Fingerprint", "ContentLength", "ResponseTime", "Host", "IP", "Port", "TLS"})
+		// csvutil.Write([]string{"FullURL", "Title", "StatusCode", "Faviconhash", "Fingerprint", "ContentLength", "ResponseTime", "Host", "IP", "Port", "TLS"})
 	}
 
 	for result := range r.Result.GetHostResult() {

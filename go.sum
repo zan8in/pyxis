@@ -66,8 +66,8 @@ github.com/zan8in/goflags v0.0.0-20230204144650-0745934af58a h1:kgpEfiv4FDkAthNB
 github.com/zan8in/goflags v0.0.0-20230204144650-0745934af58a/go.mod h1:SU2BjeuADHecx3khPTkSgkYMvd89YFJnu8YhFDGRIdM=
 github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373 h1:T2YD/hp647jDauupyJqrwMdFSKkLbVeOylYA1ViNrg0=
 github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373/go.mod h1:z3Zn3+DLpcfFKNqhAdYECiFeFK+o1EW3Gh0DEhFZ+v4=
-github.com/zan8in/libra v0.0.0-20230311154341-7e7022b51520 h1:pXyLrWUVAWQpqnTChlBq3H3wp3nP2JVtsM9s1Oa0dGA=
-github.com/zan8in/libra v0.0.0-20230311154341-7e7022b51520/go.mod h1:T4U9J7hZuBgk503muzvIDcA2QUYbuFnyh6CAzYhoh4g=
+github.com/zan8in/libra v0.0.0-20230313132827-63c56d2bc5c8 h1:57Yn6qqSMofsbMZVda/Yjp3kyJT9lknzGwywSEmdEtc=
+github.com/zan8in/libra v0.0.0-20230313132827-63c56d2bc5c8/go.mod h1:QkWQlxgv6e8OS8kmLsdOfLp80nthABrCiclOo6G3SPA=
 github.com/zan8in/retryablehttp v0.0.0-20230305123201-76eb63e85ecc h1:FZHLq1Dxypas15bkJyd7adinLS7sKkGq1ARLgVyFDO0=
 github.com/zan8in/retryablehttp v0.0.0-20230305123201-76eb63e85ecc/go.mod h1:zUsx5bVAkB4o7FeyjDu/hDBsvGm1qNPx2s36me4SnNI=
 github.com/zan8in/stringsutil v0.0.0-20220917064022-03a0bd835142 h1:VuFo0cT3pSP9TNFq868KdZy3+53so9JOl4mgx+Km5G4=
