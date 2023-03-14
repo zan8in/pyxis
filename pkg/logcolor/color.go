@@ -23,7 +23,7 @@ func NewColor() *Color {
 	return &Color{
 		Title:       color.Green.Render,
 		Fingerprint: color.Comment.Render,
-		Faviconhash: color.Yellow.Render,
+		Faviconhash: color.Magenta.Render,
 		IP:          color.Cyan.Render,
 	}
 }
