@@ -6,7 +6,7 @@ import (
 	"github.com/zan8in/gologger"
 )
 
-var Version = "0.1.0"
+var Version = "0.1.1"
 
 var banner = fmt.Sprintf(`
 ┌─┐┬ ┬─┐ ┬┬┌─┐
