@@ -30,23 +30,31 @@ type OutputResult struct {
 
 func (r *Runner) print(result *result.HostResult) {
 
-	fmt.Printf("%s [%s][%s][%s][%s]\n",
-		result.FullUrl,
-		logcolor.LogColor.Title(result.Title),
-		logcolor.LogColor.Fingerprint(result.FingerPrint),
-		logcolor.LogColor.Faviconhash(result.FaviconHash),
-		logcolor.LogColor.IP(result.IP),
+	if result.Flag == 0 {
+		fmt.Printf("%s [%s][%s][%s][%s]\n",
+			result.FullUrl,
+			logcolor.LogColor.Title(result.Title),
+			logcolor.LogColor.Fingerprint(result.FingerPrint),
+			logcolor.LogColor.Faviconhash(result.FaviconHash),
+			logcolor.LogColor.IP(result.IP),
 
-		// result.TLS,
-		// result.Host,
-		// result.Port,
-		// result.IP,
-		// result.StatusCode,
-		// result.ResponseTime,
-		// result.ContentLength,
-		// result.FaviconHash,
-		// result.FingerPrint,
-	)
+			// result.TLS,
+			// result.Host,
+			// result.Port,
+			// result.IP,
+			// result.StatusCode,
+			// result.ResponseTime,
+			// result.ContentLength,
+			// result.FaviconHash,
+			// result.FingerPrint,
+		)
+	} else {
+		fmt.Printf("%s [%s%s]\n",
+			result.Host,
+			logcolor.LogColor.Failed("Failed to access "),
+			logcolor.LogColor.Failed(result.Host),
+		)
+	}
 
 }
 

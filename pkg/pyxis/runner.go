@@ -136,8 +136,11 @@ func (r *Runner) start() {
 	for host := range r.hostChan {
 		r.wgscan.Add()
 		go func(host string) {
-			if result, err := r.scanHost(host); err == nil {
-				r.ResultChan <- &result
+			defer r.wgscan.Done()
+			if rst, err := r.scanHost(host); err == nil {
+				r.ResultChan <- &rst
+			} else {
+				r.ResultChan <- &result.HostResult{Host: host, Flag: 1}
 			}
 		}(host)
 	}
@@ -145,8 +148,6 @@ func (r *Runner) start() {
 }
 
 func (r *Runner) scanHost(host string) (result.HostResult, error) {
-	defer r.wgscan.Done()
-
 	if len(strings.TrimSpace(host)) == 0 {
 		return result.HostResult{}, fmt.Errorf("host %q is empty", host)
 	}

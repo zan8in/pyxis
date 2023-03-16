@@ -9,6 +9,7 @@ type Color struct {
 	Fingerprint func(a ...any) string
 	Faviconhash func(a ...any) string
 	IP          func(a ...any) string
+	Failed      func(a ...any) string
 }
 
 var LogColor *Color
@@ -25,5 +26,6 @@ func NewColor() *Color {
 		Fingerprint: color.Comment.Render,
 		Faviconhash: color.Magenta.Render,
 		IP:          color.Cyan.Render,
+		Failed:      color.Gray.Render,
 	}
 }

@@ -4,12 +4,20 @@ import (
 	"sync"
 )
 
+const (
+	// Success is returned when the operation was successful.
+	Success = iota
+	// Error is returned when the operation failed.
+	Failed
+)
+
 type Result struct {
 	sync.RWMutex
 	hosts map[string]*HostResult
 }
 
 type HostResult struct {
+	Flag          int    //
 	FullUrl       string // The full URL
 	Host          string // example.com or ip addr
 	Port          int    // port number

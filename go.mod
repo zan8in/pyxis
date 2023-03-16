@@ -5,12 +5,13 @@ go 1.19
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
+	github.com/gookit/color v1.5.2
 	github.com/pkg/errors v0.9.1
 	github.com/remeh/sizedwaitgroup v1.0.0
 	github.com/spaolacci/murmur3 v1.1.0
 	github.com/zan8in/goflags v0.0.0-20230204144650-0745934af58a
 	github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373
-	github.com/zan8in/libra v0.0.0-20230314074119-32fd5782e3db
+	github.com/zan8in/libra v0.0.0-20230316023833-e1253ee1db7a
 	github.com/zan8in/retryablehttp v0.0.0-20230305123201-76eb63e85ecc
 	github.com/zan8in/stringsutil v0.0.0-20220917064022-03a0bd835142
 	golang.org/x/net v0.8.0
@@ -25,7 +26,6 @@ require (
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08 // indirect
 	github.com/dlclark/regexp2 v1.8.1 // indirect
 	github.com/google/cel-go v0.13.0 // indirect
-	github.com/gookit/color v1.5.2 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
