@@ -15,6 +15,7 @@ import (
 )
 
 type OutputResult struct {
+	Flag          int    `json:"flag" csv:"flag"`
 	FullUrl       string `json:"fullurl,omitempty" csv:"fullurl"`
 	Host          string `json:"host,omitempty" csv:"host"`
 	IP            string `json:"ip,omitempty" csv:"ip"`
@@ -99,6 +100,7 @@ func (r *Runner) WriteOutput() {
 
 	for result := range r.Result.GetHostResult() {
 		or := &OutputResult{
+			Flag:          result.Flag,
 			FullUrl:       result.FullUrl,
 			Host:          result.Host,
 			IP:            result.IP,
@@ -110,6 +112,10 @@ func (r *Runner) WriteOutput() {
 			ContentLength: result.ContentLength,
 			ResponseTime:  result.ResponseTime,
 			Fingerprint:   result.FingerPrint,
+		}
+
+		if or.Flag == 1 {
+			continue
 		}
 
 		switch fileType {
