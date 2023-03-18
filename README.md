@@ -8,26 +8,68 @@ pyxis can automatically identify http and https requests, and get response heade
 
 ## Features
 
-☐ Automatically identify http/https<br/>
-☐ Response title/status code/response size/response time<br/>
-☐ Favicon Hash<br/>
-☐ Fingerprinting (2000+)<br/>
+* [x] Automatically identify http/https<br/>
+* [x] Response title/status code/response size/response time<br/>
+* [x] Favicon Hash<br/>
+* [x] Fingerprinting (2000+)<br/>
 
 ## Example
 
+URL Input
 ```
 pyxis -t example.com
-pyxis -t example.com,scanme.nmap.org
-pyxis -t 192.168.88.168:8080,192.168.66.200
-
-pyxis -T urls.txt
-cat ./urls.txt
-example.com
-scanme.nmap.org
-...
-
-pyxis -T urls.txt -o result.csv
-pyxis -T urls.txt -o result.json
-pyxis -T urls.txt -o result.txt
 ```
 
+Multiple URLs Input (comma-separ)
+```
+pyxis -t example.com,scanme.nmap.org
+pyxis -t 192.168.88.168:8080,192.168.66.200
+```
+
+List of URLs Input
+```
+$ cat url_list.txt
+
+http://example.com
+scanme.nmap.org
+..
+```
+
+Output files (csv/json/txt)
+```
+pyxis -T url_list.txt -o result.csv
+pyxis -T url_list.txt -o result.json
+pyxis -T url_list.txt -o result.txt
+```
+
+## Pyxis as a library
+```
+package main
+
+import (
+	"fmt"
+
+	"github.com/zan8in/pyxis/pkg/pyxis"
+)
+
+func main() {
+	scanner, err := pyxis.NewScanner(&pyxis.Options{
+		HostsFile: "./target.txt",
+	})
+	if err != nil {
+		panic(err)
+	}
+	scanner.Run()
+
+	if scanner.Result.HasHostResult() {
+		for hostResult := range scanner.Result.GetHostResult() {
+			fmt.Println(
+                hostResult.FullUrl, 
+                hostResult.Title, 
+                hostResult.FaviconHash, 
+                hostResult.FingerPrint,
+            )
+		}
+	}
+}
+```
