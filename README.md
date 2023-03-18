@@ -43,7 +43,7 @@ pyxis -T url_list.txt -o result.txt
 ```
 
 ## Pyxis as a library
-```
+```golang
 package main
 
 import (
