@@ -17,7 +17,12 @@ func main() {
 
 	if scanner.Result.HasHostResult() {
 		for hostResult := range scanner.Result.GetHostResult() {
-			fmt.Println(hostResult.FullUrl, hostResult.Title, hostResult.FaviconHash, hostResult.FingerPrint)
+			fmt.Println(
+				hostResult.FullUrl,
+				hostResult.Title,
+				hostResult.FaviconHash,
+				hostResult.FingerPrint,
+			)
 		}
 	}
 }
