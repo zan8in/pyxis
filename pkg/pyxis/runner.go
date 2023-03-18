@@ -65,7 +65,7 @@ func (r *Runner) Run() error {
 
 	go func() {
 		if err := r.PreprocessHost(); err != nil {
-			gologger.Fatal().Msg(err.Error())
+			gologger.Error().Msg(err.Error())
 		}
 	}()
 
@@ -85,7 +85,7 @@ func (r *Runner) ApiRun() error {
 
 	go func() {
 		if err := r.PreprocessHost(); err != nil {
-			gologger.Fatal().Msg(err.Error())
+			gologger.Error().Msg(err.Error())
 		}
 	}()
 
@@ -124,6 +124,7 @@ func (r *Runner) Listener() {
 func (r *Runner) ApiListener() {
 	for result := range r.ResultChan {
 		r.Result.SetHostResult(result.FullUrl, result)
+		r.print(result)
 	}
 	r.Phase.Set(Done)
 }
