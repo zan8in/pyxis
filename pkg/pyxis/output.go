@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/zan8in/gologger"
+	fileutil2 "github.com/zan8in/pins/file"
 	"github.com/zan8in/pyxis/pkg/logcolor"
 	"github.com/zan8in/pyxis/pkg/result"
 	"github.com/zan8in/pyxis/pkg/util/fileutil"
@@ -92,10 +93,13 @@ func (r *Runner) WriteOutput() {
 	}
 	defer file.Close()
 
-	if fileType == fileutil.FILE_CSV {
+	switch fileType {
+	case fileutil.FILE_CSV:
 		csvutil = csv.NewWriter(file)
 		file.WriteString("\xEF\xBB\xBF")
-		// csvutil.Write([]string{"FullURL", "Title", "StatusCode", "Faviconhash", "Fingerprint", "ContentLength", "ResponseTime", "Host", "IP", "Port", "TLS"})
+	// csvutil.Write([]string{"FullURL", "Title", "StatusCode", "Faviconhash", "Fingerprint", "ContentLength", "ResponseTime", "Host", "IP", "Port", "TLS"})
+	case fileutil.FILE_JSON:
+		fileutil.BufferWriteAppend(file, "[")
 	}
 
 	for result := range r.Result.GetHostResult() {
@@ -135,6 +139,12 @@ func (r *Runner) WriteOutput() {
 		case fileutil.FILE_CSV:
 			csvutil.Flush()
 		}
+	}
+
+	switch fileType {
+	case fileutil.FILE_JSON:
+		fileutil.BufferWriteAppend(file, "]")
+		fileutil2.CoverFile(output, ",]", "]")
 	}
 
 }

@@ -12,6 +12,7 @@ require (
 	github.com/zan8in/goflags v0.0.0-20230204144650-0745934af58a
 	github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373
 	github.com/zan8in/libra v0.0.0-20230316023833-e1253ee1db7a
+	github.com/zan8in/pins v0.0.0-20230414091613-7bfd343a7f2d
 	github.com/zan8in/retryablehttp v0.0.0-20230305123201-76eb63e85ecc
 	github.com/zan8in/stringsutil v0.0.0-20220917064022-03a0bd835142
 	golang.org/x/net v0.8.0
@@ -21,10 +22,11 @@ require (
 	github.com/Mzack9999/go-http-digest-auth-client v0.6.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
-	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
+	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08 // indirect
 	github.com/dlclark/regexp2 v1.8.1 // indirect
+	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/google/cel-go v0.13.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
