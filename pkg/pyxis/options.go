@@ -17,6 +17,9 @@ type Options struct {
 	Timeout   int    // Timeout is the seconds to wait for ports to respond
 	Proxy     string // http/socks5 proxy to use
 	Output    string // Output is the file to write found ports to.
+
+	// update afrog version
+	UpdateVersion bool
 }
 
 func ParseOptions() *Options {
@@ -44,6 +47,10 @@ func ParseOptions() *Options {
 
 	flagSet.CreateGroup("rate-limit", "Rate-limit",
 		flagSet.IntVar(&options.RateLimit, "rate", DefaultRateLimit, "packets to send per second"),
+	)
+
+	flagSet.CreateGroup("update", "Update",
+		flagSet.BoolVar(&options.UpdateVersion, "update", false, "update pyxis engine to the latest released version"),
 	)
 
 	flagSet.CreateGroup("debug", "Debug",
@@ -79,6 +86,10 @@ func (options *Options) validateOptions() (err error) {
 		return errors.Wrap(errZeroValue, "rate")
 	} else if options.RateLimit == DefaultRateLimit {
 		options.autoChangeRateLimit()
+	}
+
+	if options.UpdateVersion {
+		return UpdateVersion(true)
 	}
 
 	return err

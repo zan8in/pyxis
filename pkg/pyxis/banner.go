@@ -1,20 +1,11 @@
 package pyxis
 
 import (
-	"fmt"
-
 	"github.com/zan8in/gologger"
 )
 
-var Version = "0.1.1"
-
-var banner = fmt.Sprintf(`
-┌─┐┬ ┬─┐ ┬┬┌─┐
-├─┘└┬┘┌┴┬┘│└─┐
-┴   ┴ ┴ └─┴└─┘ %s
-`, Version)
+var Version = "0.1.2"
 
 func ShowBanner() {
-	gologger.Print().Msgf("%s\n", banner)
-	gologger.Print().Msgf("\thttps://github.com/zan8in/pyxis\n\n")
+	gologger.Print().Msgf("\n|||\tP Y X I S\t|||\t%s\n\n", Version)
 }
