@@ -161,7 +161,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 	)
 
 	if strings.HasPrefix(host, HTTPS_PREFIX) {
-		result, err = retryhttpclient.GetHttpRequest(host)
+		result, err = retryhttpclient.Get(host)
 		if err != nil {
 			return result, err
 		}
@@ -179,7 +179,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 	}
 
 	if strings.HasPrefix(host, HTTP_PREFIX) {
-		result, err = retryhttpclient.GetHttpRequest(host)
+		result, err = retryhttpclient.Get(host)
 		if err != nil {
 			return result, err
 		}
@@ -205,7 +205,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 
 	switch {
 	case parsePort == "80":
-		result, err = retryhttpclient.GetHttpRequest(HTTP_PREFIX + host)
+		result, err = retryhttpclient.Get(HTTP_PREFIX + host)
 		if err != nil {
 			return result, err
 		}
@@ -218,7 +218,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		return result, nil
 
 	case parsePort == "443":
-		result, err = retryhttpclient.GetHttpRequest(HTTPS_PREFIX + host)
+		result, err = retryhttpclient.Get(HTTPS_PREFIX + host)
 		if err != nil {
 			return result, err
 		}
@@ -231,7 +231,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 		return result, nil
 
 	default:
-		result, err = retryhttpclient.GetHttpRequest(HTTPS_PREFIX + host)
+		result, err = retryhttpclient.Get(HTTPS_PREFIX + host)
 		if err == nil {
 			result.Port = 443
 			strPort := ""
@@ -248,7 +248,7 @@ func (r *Runner) scanHost(host string) (result.HostResult, error) {
 			return result, err
 		}
 
-		result, err = retryhttpclient.GetHttpRequest(HTTP_PREFIX + host)
+		result, err = retryhttpclient.Get(HTTP_PREFIX + host)
 		if err == nil {
 			if strings.Contains(result.Body, "<title>400 The plain HTTP request was sent to HTTPS port</title>") {
 				result.Port = 443

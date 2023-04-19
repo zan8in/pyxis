@@ -83,7 +83,7 @@ func FaviconHash(target, body string) string {
 }
 
 func doFaviconHash(url string) string {
-	result, err := retryhttpclient.GetHttpRequest(url)
+	result, err := retryhttpclient.Get(url)
 	if err != nil {
 		return ""
 	}
