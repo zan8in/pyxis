@@ -42,7 +42,13 @@ pyxis -T url_list.txt -o result.json
 pyxis -T url_list.txt -o result.txt
 ```
 
-## Pyxis as a library
+Proxy
+```
+vela -t example.com -proxy http://127.0.0.1:1082
+vela -t example.com -proxy socks5://127.0.0.1:1081
+```
+
+<!-- ## Pyxis as a library
 ```golang
 package main
 
@@ -72,4 +78,4 @@ func main() {
 		}
 	}
 }
-```
+``` -->
