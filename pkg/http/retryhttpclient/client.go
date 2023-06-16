@@ -84,7 +84,7 @@ func Get(target string) (result.HostResult, error) {
 	result.Title = getTitle(stringutil.Str2UTF8(string(respBody)))
 	result.ResponseTime = milliseconds
 	result.Body = string(respBody)
-	result.ContentLength = int64(len(result.Body))
+	result.ContentLength = int64(len(respBody))
 
 	// fingerprint
 	newRespHeader := make(map[string]string)

@@ -33,8 +33,10 @@ type OutputResult struct {
 func (r *Runner) print(result *result.HostResult) {
 
 	if result.Flag == 0 {
-		fmt.Printf("%s [%s][%s][%s][%s]\n",
+		fmt.Printf("%s [%s][%s][%s][%s][%s][%s]\n",
 			result.FullUrl,
+			logcolor.LogColor.Status(result.StatusCode),
+			logcolor.LogColor.ContentLength(FormatFileSize(result.ContentLength)),
 			logcolor.LogColor.Title(result.Title),
 			logcolor.LogColor.Fingerprint(result.FingerPrint),
 			logcolor.LogColor.Faviconhash(result.FaviconHash),
@@ -165,11 +167,28 @@ func (or *OutputResult) CSV() []string {
 		strconv.Itoa(or.StatusCode),
 		or.FaviconHash,
 		or.Fingerprint,
-		fmt.Sprintf("%d", or.ContentLength),
+		FormatFileSize(or.ContentLength),
 		fmt.Sprintf("%d", or.ResponseTime),
 		or.Host,
 		or.IP,
 		strconv.Itoa(or.Port),
 		fmt.Sprintf("%t", or.TLS),
+	}
+}
+
+func FormatFileSize(fileSize int64) (size string) {
+	if fileSize < 1024 {
+		//return strconv.FormatInt(fileSize, 10) + "B"
+		return fmt.Sprintf("%.2fB", float64(fileSize)/float64(1))
+	} else if fileSize < (1024 * 1024) {
+		return fmt.Sprintf("%.2fKB", float64(fileSize)/float64(1024))
+	} else if fileSize < (1024 * 1024 * 1024) {
+		return fmt.Sprintf("%.2fMB", float64(fileSize)/float64(1024*1024))
+	} else if fileSize < (1024 * 1024 * 1024 * 1024) {
+		return fmt.Sprintf("%.2fGB", float64(fileSize)/float64(1024*1024*1024))
+	} else if fileSize < (1024 * 1024 * 1024 * 1024 * 1024) {
+		return fmt.Sprintf("%.2fTB", float64(fileSize)/float64(1024*1024*1024*1024))
+	} else { //if fileSize < (1024 * 1024 * 1024 * 1024 * 1024 * 1024)
+		return fmt.Sprintf("%.2fPB", float64(fileSize)/float64(1024*1024*1024*1024*1024))
 	}
 }
