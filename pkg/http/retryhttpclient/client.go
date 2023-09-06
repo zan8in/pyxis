@@ -1,6 +1,7 @@
 package retryhttpclient
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptrace"
@@ -16,6 +17,7 @@ import (
 
 var (
 	RedirectClient *retryablehttp.Client
+	defaultTimeout = 12 * time.Second
 )
 
 const maxDefaultBody = 2 * 1024 * 1024
@@ -48,7 +50,10 @@ func Get(target string) (result.HostResult, error) {
 		result result.HostResult
 	)
 
-	req, err := retryablehttp.NewRequest(http.MethodGet, target, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+
+	req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodGet, target, nil)
 	if err != nil {
 		return result, err
 	}

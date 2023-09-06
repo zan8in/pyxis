@@ -11,9 +11,9 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0
 	github.com/zan8in/goflags v0.0.0-20230204144650-0745934af58a
 	github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373
-	github.com/zan8in/libra v0.0.0-20230316023833-e1253ee1db7a
+	github.com/zan8in/libra v0.0.0-20230906060448-63210cf333fb
 	github.com/zan8in/pins v0.0.0-20230415064757-40257618b466
-	github.com/zan8in/retryablehttp v0.0.0-20230417060358-283ce50692bb
+	github.com/zan8in/retryablehttp v0.0.0-20230424151727-99fdd3c661d7
 	github.com/zan8in/stringsutil v0.0.0-20220917064022-03a0bd835142
 )
 
@@ -29,7 +29,7 @@ require (
 	github.com/google/cel-go v0.13.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/kr/text v0.2.0 // indirect
+	github.com/kr/pretty v0.2.1 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
 	github.com/microcosm-cc/bluemonday v1.0.22 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -43,7 +43,6 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
 	google.golang.org/protobuf v1.29.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
