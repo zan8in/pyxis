@@ -11,7 +11,7 @@ pyxis can automatically identify http and https requests, and get response heade
 * [x] Automatically identify http/https<br/>
 * [x] Response title/status code/response size/response time<br/>
 * [x] Favicon Hash<br/>
-* [x] Fingerprinting (2000+)<br/>
+* [x] Fingerprinting (10000+)<br/>
 
 ## Example
 
