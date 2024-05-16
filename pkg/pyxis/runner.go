@@ -138,7 +138,7 @@ func (r *Runner) start() {
 		r.wgscan.Add()
 		go func(host string) {
 			defer r.wgscan.Done()
-			if rst, err := r.scanHost(host); err == nil {
+			if rst, err := r.ScanHost(host); err == nil {
 				r.ResultChan <- &rst
 			} else {
 				r.ResultChan <- &result.HostResult{Host: host, Flag: 1}
@@ -148,7 +148,7 @@ func (r *Runner) start() {
 	r.wgscan.Wait()
 }
 
-func (r *Runner) scanHost(host string) (result.HostResult, error) {
+func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 	if len(strings.TrimSpace(host)) == 0 {
 		return result.HostResult{}, fmt.Errorf("host %q is empty", host)
 	}
