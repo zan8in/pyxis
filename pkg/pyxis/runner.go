@@ -60,6 +60,26 @@ func NewRunner(options *Options) (*Runner, error) {
 	return runner, err
 }
 
+func NewApiRunner(options *Options) (*Runner, error) {
+	var (
+		err error
+	)
+
+	runner := &Runner{
+		Options: options,
+	}
+
+	if err = retryhttpclient.Init(&retryhttpclient.Options{
+		Retries: options.Retries,
+		Timeout: options.Timeout,
+		Proxy:   options.Proxy,
+	}); err != nil {
+		return runner, err
+	}
+
+	return runner, err
+}
+
 func (r *Runner) Run() error {
 	defer r.Close()
 
