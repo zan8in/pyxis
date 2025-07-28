@@ -13,7 +13,7 @@ require (
 	github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373
 	github.com/zan8in/libra v0.0.0-20230906060448-63210cf333fb
 	github.com/zan8in/pins v0.0.0-20230415064757-40257618b466
-	github.com/zan8in/retryablehttp v0.0.0-20230424151727-99fdd3c661d7
+	github.com/zan8in/retryablehttp v0.0.0-20250708033333-22f47dd0b7df
 	github.com/zan8in/stringsutil v0.0.0-20220917064022-03a0bd835142
 )
 
@@ -27,20 +27,20 @@ require (
 	github.com/dlclark/regexp2 v1.8.1 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/google/cel-go v0.13.0 // indirect
-	github.com/gorilla/css v1.0.0 // indirect
+	github.com/gorilla/css v1.0.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/logrusorgru/aurora v2.0.3+incompatible // indirect
-	github.com/microcosm-cc/bluemonday v1.0.22 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	github.com/zan8in/fileutil v0.0.0-20220917063910-ce47dcc0cfa9 // indirect
-	golang.org/x/net v0.9.0 // indirect
-	golang.org/x/sys v0.7.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
 	google.golang.org/protobuf v1.29.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
