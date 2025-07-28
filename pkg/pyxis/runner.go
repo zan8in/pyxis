@@ -191,7 +191,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 		u, err := url.Parse(host)
 		if err == nil {
 			result.Host = u.Hostname()
-			result.IP = iputil.GetDomainIP(u.Hostname())
+			result.IP, result.Cdn = iputil.GetDomainIPWithCDN(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
@@ -209,7 +209,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 		u, err := url.Parse(host)
 		if err == nil {
 			result.Host = u.Hostname()
-			result.IP = iputil.GetDomainIP(u.Hostname())
+			result.IP, result.Cdn = iputil.GetDomainIPWithCDN(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
@@ -245,7 +245,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 		result.Port = 443
 		result.TLS = true
 		result.Host = parseHost
-		result.IP = iputil.GetDomainIP(parseHost)
+		result.IP, result.Cdn = iputil.GetDomainIPWithCDN(parseHost)
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
@@ -260,7 +260,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 				strPort = ":" + parsePort
 			}
 			result.Host = parseHost
-			result.IP = iputil.GetDomainIP(parseHost)
+			result.IP, result.Cdn = iputil.GetDomainIPWithCDN(parseHost)
 			result.TLS = true
 			result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
@@ -278,7 +278,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 					strPort = ":" + parsePort
 				}
 				result.Host = parseHost
-				result.IP = iputil.GetDomainIP(parseHost)
+				result.IP, result.Cdn = iputil.GetDomainIPWithCDN(parseHost)
 				result.TLS = true
 				result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 				result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
@@ -293,7 +293,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 			}
 			result.Host = parseHost
 			result.TLS = false
-			result.IP = iputil.GetDomainIP(parseHost)
+			result.IP, result.Cdn = iputil.GetDomainIPWithCDN(parseHost)
 			result.FullUrl = HTTP_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)

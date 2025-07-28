@@ -12,6 +12,7 @@ type Color struct {
 	IP            func(a ...any) string
 	Failed        func(a ...any) string
 	ContentLength func(a ...any) string
+	Cdn           func(a ...any) string
 }
 
 var LogColor *Color
@@ -32,5 +33,6 @@ func NewColor() *Color {
 		IP:            color.Cyan.Render,
 		Failed:        color.Gray.Render,
 		ContentLength: color.Gray.Render,
+		Cdn:           color.Magenta.Render,
 	}
 }

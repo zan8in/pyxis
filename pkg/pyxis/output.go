@@ -33,7 +33,7 @@ type OutputResult struct {
 func (r *Runner) print(result *result.HostResult) {
 
 	if result.Flag == 0 {
-		fmt.Printf("%s [%s][%s][%s][%s][%s][%s]\n",
+		fmt.Printf("%s [%s][%s][%s][%s][%s][%s][%s]\n",
 			result.FullUrl,
 			logcolor.LogColor.Status(result.StatusCode),
 			logcolor.LogColor.ContentLength(FormatFileSize(result.ContentLength)),
@@ -41,6 +41,7 @@ func (r *Runner) print(result *result.HostResult) {
 			logcolor.LogColor.Fingerprint(result.FingerPrint),
 			logcolor.LogColor.Faviconhash(result.FaviconHash),
 			logcolor.LogColor.IP(result.IP),
+			logcolor.LogColor.Cdn(result.Cdn),
 
 			// result.TLS,
 			// result.Host,

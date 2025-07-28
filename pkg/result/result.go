@@ -30,6 +30,7 @@ type HostResult struct {
 	ResponseTime  int64  // time of the response
 	FaviconHash   string // favicon hash
 	FingerPrint   string
+	Cdn           string // cdn provider
 	RawBody       []byte //
 	Raw           []byte // raw
 	RawHeader     []byte // header

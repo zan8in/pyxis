@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	cdnlib "github.com/zan8in/pyxis/pkg/cdncheck"
 	"github.com/zan8in/stringsutil"
 )
 
@@ -202,7 +203,7 @@ func ToFQDN(target string) ([]string, error) {
 	return names, nil
 }
 
-func GetDomainIP(target string) string {
+func GetDomainIP2(target string) string {
 	if IsIP(target) {
 		return target
 	}
@@ -214,4 +215,134 @@ func GetDomainIP(target string) string {
 		return ""
 	}
 	return ips[0].To4().String()
+}
+func GetDomainIP(target string) string {
+	if IsIP(target) {
+		return target
+	}
+
+	ips, err := net.LookupIP(target)
+	if err != nil {
+		if addr, err := net.ResolveIPAddr("ip", target); err == nil {
+			return addr.IP.String()
+		}
+		return ""
+	}
+
+	if len(ips) == 0 {
+		return ""
+	}
+
+	// ips 转 字符串，逗号隔开
+	ipStr := ""
+	for _, ip := range ips {
+		ipStr += ip.String() + ","
+	}
+
+	return ipStr
+}
+
+// GetDomainIPWithCDN 返回域名解析的IP地址和CDN检测结果
+func GetDomainIPWithCDN(target string) (string, string) {
+	if IsIP(target) {
+		// 如果输入已经是IP，直接检查是否为CDN
+		isCDN, provider := cdnlib.IsCDNIP(target)
+		if isCDN {
+			if provider != "" {
+				return target, fmt.Sprintf("CDN:%s", provider)
+			}
+			return target, "CDN"
+		}
+		return target, ""
+	}
+
+	// 尝试使用cdnlib库的CheckDomain函数检查域名
+	results, err := cdnlib.CheckDomain(target)
+	if err == nil && len(results) > 0 {
+		// 构建IP字符串
+		ipStr := ""
+		hasCDN := false
+		cdnProvider := ""
+
+		for _, result := range results {
+			ipStr += result.IP + ","
+
+			if result.IsCDN {
+				hasCDN = true
+				if result.Provider != "" && cdnProvider == "" {
+					cdnProvider = result.Provider
+				}
+			}
+		}
+
+		// 移除最后的逗号
+		if len(ipStr) > 0 {
+			ipStr = ipStr[:len(ipStr)-1]
+		}
+
+		// 多个IP或已知是CDN
+		if len(results) > 1 || hasCDN {
+			if cdnProvider != "" {
+				return ipStr, fmt.Sprintf("CDN:%s", cdnProvider)
+			}
+			return ipStr, "CDN"
+		}
+
+		return ipStr, ""
+	}
+
+	// 如果cdnlib检查失败，回退到原始方法
+	ips, err := net.LookupIP(target)
+	if err != nil {
+		if addr, err := net.ResolveIPAddr("ip", target); err == nil {
+			// 检查解析到的IP是否为CDN
+			ipStr := addr.IP.String()
+			isCDN, provider := cdnlib.IsCDNIP(ipStr)
+			if isCDN {
+				if provider != "" {
+					return ipStr, fmt.Sprintf("CDN:%s", provider)
+				}
+				return ipStr, "CDN"
+			}
+			return ipStr, ""
+		}
+		return "", ""
+	}
+
+	if len(ips) == 0 {
+		return "", ""
+	}
+
+	// 构建IP字符串
+	ipStr := ""
+	hasCDN := false
+	cdnProvider := ""
+
+	for _, ip := range ips {
+		ipAddr := ip.String()
+		ipStr += ipAddr + ","
+
+		isCDN, provider := cdnlib.IsCDNIP(ipAddr)
+		if isCDN {
+			hasCDN = true
+			if provider != "" && cdnProvider == "" {
+				cdnProvider = provider
+			}
+		}
+	}
+
+	// 移除最后的逗号
+	if len(ipStr) > 0 {
+		ipStr = ipStr[:len(ipStr)-1]
+	}
+
+	// 多个IP或已知是CDN
+	if len(ips) > 1 || hasCDN {
+		if cdnProvider != "" {
+			return ipStr, fmt.Sprintf("CDN:%s", cdnProvider)
+		}
+		return ipStr, "CDN"
+	}
+
+	return ipStr, ""
 }

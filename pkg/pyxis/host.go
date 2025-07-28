@@ -21,7 +21,13 @@ func (r *Runner) PreprocessHost() error {
 	if err != nil {
 		return err
 	}
-	defer hostTemp.Close()
+	// 确保文件被关闭和删除
+	fileName := hostTemp.Name()
+	defer func() {
+		hostTemp.Close()
+		// 如果函数正常结束，不删除文件，因为后续还需要使用
+		// 文件将在Runner.Close()中被删除
+	}()
 
 	if len(r.Options.Host) > 0 {
 		for _, host := range r.Options.Host {
@@ -43,9 +49,9 @@ func (r *Runner) PreprocessHost() error {
 		}
 	}
 
-	r.hostTempFile = hostTemp.Name()
+	r.hostTempFile = fileName
 
-	f, err := os.Open(hostTemp.Name())
+	f, err := os.Open(fileName)
 	if err != nil {
 		return err
 	}
