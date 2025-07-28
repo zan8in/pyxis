@@ -2,8 +2,8 @@ package pyxis
 
 const (
 	DefaultRetries   = 1
-	DefaultTimeout   = 6
-	DefaultRateLimit = 200
+	DefaultTimeout   = 10
+	DefaultRateLimit = 150
 
 	HostTempFile = "pyxis-host-temp-*"
 

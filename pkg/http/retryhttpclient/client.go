@@ -17,7 +17,6 @@ import (
 
 var (
 	RedirectClient *retryablehttp.Client
-	defaultTimeout = 12 * time.Second
 )
 
 const maxDefaultBody = 2 * 1024 * 1024
@@ -50,7 +49,8 @@ func Get(target string) (result.HostResult, error) {
 		result result.HostResult
 	)
 
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	timeoutDuration := time.Duration(RedirectClient.HTTPClient.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeoutDuration)
 	defer cancel()
 
 	req, err := retryablehttp.NewRequestWithContext(ctx, http.MethodGet, target, nil)
