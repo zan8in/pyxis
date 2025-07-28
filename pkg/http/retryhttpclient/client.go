@@ -84,28 +84,47 @@ func Get(target string) (result.HostResult, error) {
 		return result, err
 	}
 
+	// 设置基本字段
 	result.FullUrl = target
 	result.StatusCode = resp.StatusCode
-	result.Title = getTitle(stringutil.Str2UTF8(string(respBody)))
 	result.ResponseTime = milliseconds
-	result.Body = string(respBody)
 	result.ContentLength = int64(len(respBody))
 
-	// fingerprint
-	newRespHeader := make(map[string]string)
+	// 处理响应体，避免多次转换
+	utf8Body := stringutil.Str2UTF8(string(respBody))
+	result.Body = utf8Body
+	result.Title = getTitle(utf8Body)
+	result.RawBody = []byte(utf8Body)
+
+	// 处理响应头
+	newRespHeader := make(map[string]string, len(resp.Header))
 	rawHeaderBuilder := strings.Builder{}
+	rawHeaderBuilder.Grow(1024) // 预分配空间
+
 	for k := range resp.Header {
 		newRespHeader[strings.ToLower(k)] = resp.Header.Get(k)
-
 		rawHeaderBuilder.WriteString(k)
 		rawHeaderBuilder.WriteString(": ")
 		rawHeaderBuilder.WriteString(resp.Header.Get(k))
 		rawHeaderBuilder.WriteString("\n")
 	}
 	result.Headers = newRespHeader
-	result.RawBody = []byte(stringutil.Str2UTF8(string(respBody)))
-	result.RawHeader = []byte(strings.Trim(rawHeaderBuilder.String(), "\n"))
-	result.Raw = []byte(resp.Proto + " " + resp.Status + "\n" + strings.Trim(rawHeaderBuilder.String(), "\n") + "\n\n" + stringutil.Str2UTF8(string(respBody)))
+
+	// 构建原始响应数据
+	rawHeader := strings.TrimSuffix(rawHeaderBuilder.String(), "\n")
+	result.RawHeader = []byte(rawHeader)
+
+	// 构建完整的原始响应
+	rawBuilder := strings.Builder{}
+	rawBuilder.Grow(len(resp.Proto) + len(resp.Status) + len(rawHeader) + len(utf8Body) + 10)
+	rawBuilder.WriteString(resp.Proto)
+	rawBuilder.WriteString(" ")
+	rawBuilder.WriteString(resp.Status)
+	rawBuilder.WriteString("\n")
+	rawBuilder.WriteString(rawHeader)
+	rawBuilder.WriteString("\n\n")
+	rawBuilder.WriteString(utf8Body)
+	result.Raw = []byte(rawBuilder.String())
 
 	return result, nil
 }
