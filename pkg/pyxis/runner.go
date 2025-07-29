@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/remeh/sizedwaitgroup"
+	"github.com/zan8in/cdncheck"
 	"github.com/zan8in/gologger"
 	"github.com/zan8in/libra"
 	"github.com/zan8in/pyxis/pkg/favicon"
@@ -32,6 +33,8 @@ type Runner struct {
 	hostTempFile string
 
 	Phase Phase
+
+	cdnchecker *cdncheck.CDNChecker
 }
 
 func NewRunner(options *Options) (*Runner, error) {
@@ -44,6 +47,7 @@ func NewRunner(options *Options) (*Runner, error) {
 		hostChan:   make(chan string),
 		ResultChan: make(chan *result.HostResult),
 		Result:     result.NewResult(),
+		cdnchecker: cdncheck.NewDefaultCDNChecker(),
 	}
 
 	if err = retryhttpclient.Init(&retryhttpclient.Options{
@@ -191,7 +195,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 		u, err := url.Parse(host)
 		if err == nil {
 			result.Host = u.Hostname()
-			result.IP, result.Cdn = iputil.GetDomainIPWithCDN(u.Hostname())
+			result.IP, result.Cdn, _ = r.GetDomainIPWithCDN(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
@@ -209,7 +213,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 		u, err := url.Parse(host)
 		if err == nil {
 			result.Host = u.Hostname()
-			result.IP, result.Cdn = iputil.GetDomainIPWithCDN(u.Hostname())
+			result.IP, result.Cdn, _ = r.GetDomainIPWithCDN(u.Hostname())
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
@@ -245,7 +249,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 		result.Port = 443
 		result.TLS = true
 		result.Host = parseHost
-		result.IP, result.Cdn = iputil.GetDomainIPWithCDN(parseHost)
+		result.IP, result.Cdn, _ = r.GetDomainIPWithCDN(u.Hostname())
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
@@ -260,7 +264,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 				strPort = ":" + parsePort
 			}
 			result.Host = parseHost
-			result.IP, result.Cdn = iputil.GetDomainIPWithCDN(parseHost)
+			result.IP, result.Cdn, _ = r.GetDomainIPWithCDN(u.Hostname())
 			result.TLS = true
 			result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
@@ -278,7 +282,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 					strPort = ":" + parsePort
 				}
 				result.Host = parseHost
-				result.IP, result.Cdn = iputil.GetDomainIPWithCDN(parseHost)
+				result.IP, result.Cdn, _ = r.GetDomainIPWithCDN(u.Hostname())
 				result.TLS = true
 				result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 				result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
@@ -293,7 +297,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 			}
 			result.Host = parseHost
 			result.TLS = false
-			result.IP, result.Cdn = iputil.GetDomainIPWithCDN(parseHost)
+			result.IP, result.Cdn, _ = r.GetDomainIPWithCDN(u.Hostname())
 			result.FullUrl = HTTP_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
 			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
@@ -336,4 +340,44 @@ func fingerprintSlice2String(f []string) string {
 
 func (r *Runner) Close() error {
 	return os.RemoveAll(r.hostTempFile)
+}
+
+// GetDomainIPWithCDN 获取域名的IP和CDN
+// @param domain 域名
+// @return
+//
+//	ip 域名的IP（多个IP用逗号分隔）
+//	cdn 域名的CDN信息
+//	err 错误
+func (r *Runner) GetDomainIPWithCDN(domain string) (string, string, error) {
+	if domain == "" {
+		return "", "", fmt.Errorf("域名不能为空")
+	}
+
+	if iputil.IsIP(domain) {
+		return domain, "", nil
+	}
+
+	// 使用cdncheck库检查域名
+	result, err := r.cdnchecker.CheckDomain(domain)
+	if err != nil {
+		return "", "", err
+	}
+
+	// 提取IP地址列表
+	ipList := strings.Join(result.IPs, ",")
+
+	// 构建CDN信息 - 保持简洁格式
+	var cdnInfo string
+	if result.IsCDN {
+		if result.Provider != "" && !strings.Contains(result.Provider, ",") {
+			// 单一提供商
+			cdnInfo = "CDN:" + result.Provider
+		} else {
+			// 多提供商或未知提供商
+			cdnInfo = "CDN"
+		}
+	}
+
+	return ipList, cdnInfo, nil
 }

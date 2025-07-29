@@ -73,6 +73,8 @@ github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ
 github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 h1:QldyIu/L63oPpyvQmHgvgickp1Yw510KJOqX7H24mg8=
 github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778/go.mod h1:2MuV+tbUrU1zIOPMxZ5EncGwgmMJsa+9ucAQZXxsObs=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
+github.com/zan8in/cdncheck v0.0.0-20250729074242-1d2b20d0012a h1:9CK7C2Pvit98HudsNjUfm6Zx2KID2HVssKmyuJvEMNA=
+github.com/zan8in/cdncheck v0.0.0-20250729074242-1d2b20d0012a/go.mod h1:K5JxpA7HVYiMcNPm+F3VrdP6dY0hvpjd4ytguKIt7VY=
 github.com/zan8in/fileutil v0.0.0-20220917063910-ce47dcc0cfa9 h1:WwIlLuTbEEzJHh0ZXXrBhwALDztG1Mkvz7jfqzwuhtY=
 github.com/zan8in/fileutil v0.0.0-20220917063910-ce47dcc0cfa9/go.mod h1:IMXMxKc8XnbwVGoe2cie8JYP2rF4R6DIJh4mMniInUQ=
 github.com/zan8in/goflags v0.0.0-20230204144650-0745934af58a h1:kgpEfiv4FDkAthNB5RQHAZ/fJEVitbcrLOJDeUCRVyY=

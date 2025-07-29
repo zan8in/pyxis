@@ -1,6 +1,6 @@
 module github.com/zan8in/pyxis
 
-go 1.19
+go 1.24.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
@@ -37,6 +37,7 @@ require (
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
+	github.com/zan8in/cdncheck v0.0.0-20250729074242-1d2b20d0012a // indirect
 	github.com/zan8in/fileutil v0.0.0-20220917063910-ce47dcc0cfa9 // indirect
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
