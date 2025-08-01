@@ -427,5 +427,12 @@ func (r *Runner) GetDomainIPWithCDN(domain string) (string, string, error) {
 		return "", "", err
 	}
 
+	// 特殊情况处理
+	// 如果不是CDN但是有两个IP，认为是负载均衡
+	if !result.IsCDN && len(result.IPs) == 2 {
+		result.IsCDN = true
+		result.Provider = "负载均衡"
+	}
+
 	return strings.Join(result.IPs, ","), formatCDNInfo(result.IsCDN, result.Provider), nil
 }
