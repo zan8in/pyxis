@@ -1,6 +1,7 @@
 package pyxis
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"os"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/remeh/sizedwaitgroup"
 	"github.com/zan8in/cdncheck"
+	"github.com/zan8in/godns"
 	"github.com/zan8in/gologger"
 	"github.com/zan8in/libra"
 	"github.com/zan8in/pyxis/pkg/favicon"
@@ -18,6 +20,8 @@ import (
 	"github.com/zan8in/pyxis/pkg/result"
 	"github.com/zan8in/pyxis/pkg/util/iputil"
 )
+
+var defaultCdncheckTimeout = 3
 
 type Runner struct {
 	Options *Options
@@ -42,12 +46,55 @@ func NewRunner(options *Options) (*Runner, error) {
 		err error
 	)
 
+	var cdnchecker *cdncheck.CDNChecker
+
+	// 构建基础配置选项
+	opts := []cdncheck.Option{
+		cdncheck.WithRetries(options.Retries),
+		cdncheck.WithTimeout(time.Duration(options.Timeout) * time.Second),
+	}
+
+	// 处理代理配置
+	if options.Proxy != "" {
+		proxyURL, err := url.Parse(options.Proxy)
+		if err != nil {
+			return nil, fmt.Errorf("解析代理URL失败: %v", err)
+		}
+
+		// 提取认证信息
+		var auth *godns.ProxyAuth
+		if proxyURL.User != nil {
+			password, _ := proxyURL.User.Password()
+			auth = &godns.ProxyAuth{
+				Username: proxyURL.User.Username(),
+				Password: password,
+			}
+		}
+
+		// 根据代理类型添加相应选项
+		switch strings.ToLower(proxyURL.Scheme) {
+		case "socks5":
+			opts = append(opts, cdncheck.WithSOCKS5Proxy(proxyURL.Host, auth))
+		case "http", "https":
+			opts = append(opts, cdncheck.WithHTTPProxy(proxyURL.Host, auth))
+		default:
+			return nil, fmt.Errorf("不支持的代理类型: %s，支持的类型: http, https, socks5", proxyURL.Scheme)
+		}
+	}
+
+	cdnchecker = cdncheck.New(opts...)
+
+	// 检查cdnchecker是否创建成功
+	if cdnchecker == nil {
+		return nil, fmt.Errorf("创建CDN检查器失败")
+	}
+
 	runner := &Runner{
 		Options:    options,
 		hostChan:   make(chan string),
 		ResultChan: make(chan *result.HostResult),
 		Result:     result.NewResult(),
-		cdnchecker: cdncheck.NewDefaultCDNChecker(),
+		cdnchecker: cdnchecker,
 	}
 
 	if err = retryhttpclient.Init(&retryhttpclient.Options{
@@ -354,30 +401,31 @@ func (r *Runner) GetDomainIPWithCDN(domain string) (string, string, error) {
 		return "", "", fmt.Errorf("域名不能为空")
 	}
 
-	if iputil.IsIP(domain) {
-		return domain, "", nil
+	// 统一的CDN信息格式化函数
+	formatCDNInfo := func(isCDN bool, provider string) string {
+		if !isCDN {
+			return ""
+		}
+		if provider != "" && !strings.Contains(provider, ",") {
+			return "CDN:" + provider
+		}
+		return "CDN"
 	}
 
-	// 使用cdncheck库检查域名
-	result, err := r.cdnchecker.CheckDomain(domain)
+	// 处理IP输入
+	if iputil.IsIP(domain) {
+		result, _ := r.cdnchecker.CheckIP(domain)
+		return domain, formatCDNInfo(result.IsCDN, result.Provider), nil
+	}
+
+	// 处理域名输入
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(defaultCdncheckTimeout)*time.Second)
+	defer cancel()
+
+	result, err := r.cdnchecker.CheckDomain(ctx, domain)
 	if err != nil {
 		return "", "", err
 	}
 
-	// 提取IP地址列表
-	ipList := strings.Join(result.IPs, ",")
-
-	// 构建CDN信息 - 保持简洁格式
-	var cdnInfo string
-	if result.IsCDN {
-		if result.Provider != "" && !strings.Contains(result.Provider, ",") {
-			// 单一提供商
-			cdnInfo = "CDN:" + result.Provider
-		} else {
-			// 多提供商或未知提供商
-			cdnInfo = "CDN"
-		}
-	}
-
-	return ipList, cdnInfo, nil
+	return strings.Join(result.IPs, ","), formatCDNInfo(result.IsCDN, result.Provider), nil
 }
