@@ -61,7 +61,7 @@ func ParseOptions() *Options {
 
 	err := options.validateOptions()
 	if err != nil {
-		gologger.Error().Msgf("Program exiting: %s\n", err)
+		gologger.Fatal().Msgf("Program exiting: %s\n", err)
 	}
 
 	return options

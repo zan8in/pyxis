@@ -44,19 +44,15 @@ func NewResult() *Result {
 }
 
 func (r *Result) GetHostResult() chan *HostResult {
-	r.Lock()
-
 	out := make(chan *HostResult)
-
 	go func() {
 		defer close(out)
-		defer r.Unlock()
-
+		r.RLock()
+		defer r.RUnlock()
 		for _, hostResult := range r.hosts {
 			out <- hostResult
 		}
 	}()
-
 	return out
 }
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/zan8in/pyxis/pkg/pyxis"
 )
@@ -11,7 +12,7 @@ func main() {
 		HostsFile: "./target.txt",
 	})
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to create scanner: %v", err)
 	}
 	scanner.Run()
 
