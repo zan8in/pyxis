@@ -231,6 +231,36 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 		parsePort string
 	)
 
+	// 如果启用了CDN选项，只进行CDN检测
+	if r.Options.Cdn {
+		// 解析主机名
+		if strings.HasPrefix(host, HTTP_PREFIX) || strings.HasPrefix(host, HTTPS_PREFIX) {
+			u, err := url.Parse(host)
+			if err != nil {
+				return result, err
+			}
+			parseHost = u.Hostname()
+		} else {
+			// 移除端口号
+			if strings.Contains(host, ":") {
+				parts := strings.Split(host, ":")
+				parseHost = parts[0]
+			} else {
+				parseHost = host
+			}
+		}
+
+		// 只进行CDN检测
+		result.Host = parseHost
+		result.IP, result.Cdn, err = r.GetDomainIPWithCDN(parseHost)
+		if err != nil {
+			result.Flag = 1 // 标记为失败
+			return result, err
+		}
+		result.Flag = 0 // 标记为成功
+		return result, nil
+	}
+
 	if strings.HasPrefix(host, HTTPS_PREFIX) {
 		result, err = retryhttpclient.Get(host)
 		if err != nil {

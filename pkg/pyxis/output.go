@@ -28,9 +28,34 @@ type OutputResult struct {
 	ResponseTime  int64  `json:"responsetime,omitempty" csv:"responsetime"`
 	FaviconHash   string `json:"faviconhash,omitempty" csv:"faviconhash"`
 	Fingerprint   string `json:"fingerprint,omitempty" csv:"fingerprint"`
+	Cdn           string `json:"cdn,omitempty" csv:"cdn"` // 新增CDN字段
 }
 
 func (r *Runner) print(result *result.HostResult) {
+	// 如果启用了CDN选项，只显示CDN检测结果
+	if r.Options.Cdn {
+		if result.Flag == 0 {
+			if result.Cdn != "" {
+				fmt.Printf("%s [%s][%s]\n",
+					result.Host,
+					logcolor.LogColor.IP(result.IP),
+					logcolor.LogColor.Cdn(result.Cdn),
+				)
+			} else {
+				fmt.Printf("%s [%s][%s]\n",
+					result.Host,
+					logcolor.LogColor.IP(result.IP),
+					logcolor.LogColor.Failed("Not CDN"),
+				)
+			}
+		} else {
+			fmt.Printf("%s [%s]\n",
+				result.Host,
+				logcolor.LogColor.Failed("Failed to detect"),
+			)
+		}
+		return
+	}
 
 	if result.Flag == 0 {
 		fmt.Printf("%s [%s][%s][%s][%s][%s][%s][%s]\n",
@@ -119,6 +144,7 @@ func (r *Runner) WriteOutput() {
 			ContentLength: result.ContentLength,
 			ResponseTime:  result.ResponseTime,
 			Fingerprint:   result.FingerPrint,
+			Cdn:           result.Cdn, // 添加CDN字段
 		}
 
 		if or.Flag == 1 {
@@ -157,12 +183,14 @@ func (or *OutputResult) JSON() ([]byte, error) {
 }
 
 func (or *OutputResult) TXT() string {
-	return fmt.Sprintf("%s\t%s\t%s\n", or.FullUrl, or.Title, or.FaviconHash)
+	return fmt.Sprintf("%s\t%s\t%s\t%s\n", or.Host, or.IP, or.Cdn, or.FullUrl)
 }
 
 func (or *OutputResult) CSV() []string {
-	// {"FullURL", "Title", "StatusCode", "Faviconhash", "ContentLength", "ResponseTime", "Host", "IP", "Port", "TLS"})
 	return []string{
+		or.Host,
+		or.IP,
+		or.Cdn,
 		or.FullUrl,
 		or.Title,
 		strconv.Itoa(or.StatusCode),
@@ -170,8 +198,6 @@ func (or *OutputResult) CSV() []string {
 		or.Fingerprint,
 		FormatFileSize(or.ContentLength),
 		fmt.Sprintf("%d", or.ResponseTime),
-		or.Host,
-		or.IP,
 		strconv.Itoa(or.Port),
 		fmt.Sprintf("%t", or.TLS),
 	}
