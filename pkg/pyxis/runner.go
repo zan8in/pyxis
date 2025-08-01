@@ -140,11 +140,20 @@ func (r *Runner) Run() error {
 		}
 	}()
 
-	go r.Listener()
+	// 使用 WaitGroup 等待 Listener 完成
+	listenerWg := sync.WaitGroup{}
+	listenerWg.Add(1)
+	go func() {
+		defer listenerWg.Done()
+		r.Listener()
+	}()
 
 	r.start()
 
 	r.Delay()
+
+	// 等待 Listener 完全处理完所有结果
+	listenerWg.Wait()
 
 	r.WriteOutput()
 
@@ -240,6 +249,8 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 				return result, err
 			}
 			parseHost = u.Hostname()
+			// 设置 FullUrl 为原始输入
+			result.FullUrl = host
 		} else {
 			// 移除端口号
 			if strings.Contains(host, ":") {
@@ -248,6 +259,8 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 			} else {
 				parseHost = host
 			}
+			// 设置 FullUrl 为主机名（CDN模式下用作唯一标识）
+			result.FullUrl = parseHost
 		}
 
 		// 只进行CDN检测
