@@ -18,11 +18,11 @@ type Options struct {
 	Proxy     string // http/socks5 proxy to use
 	Output    string // Output is the file to write found ports to.
 
+	Silent bool // Silent is the flag to show only results
+	Cdn    bool
 }
 
 func ParseOptions() *Options {
-
-	ShowBanner()
 
 	options := &Options{}
 
@@ -41,17 +41,23 @@ func ParseOptions() *Options {
 	flagSet.CreateGroup("optimization", "Optimization",
 		flagSet.IntVar(&options.Retries, "retries", DefaultRetries, "number of retries for the port scan"),
 		flagSet.IntVar(&options.Timeout, "timeout", DefaultTimeout, "millisecond to wait before timing out"),
+		flagSet.BoolVar(&options.Cdn, "cdn", false, "check if the host is a cdn"),
+		flagSet.BoolVar(&options.Silent, "silent", false, "only results only"),
 	)
 
 	flagSet.CreateGroup("rate-limit", "Rate-limit",
 		flagSet.IntVar(&options.RateLimit, "rate", DefaultRateLimit, "packets to send per second"),
 	)
 
-	flagSet.CreateGroup("debug", "Debug",
+	flagSet.CreateGroup("proxy", "Proxy",
 		flagSet.StringVar(&options.Proxy, "proxy", "", "list of http/socks5 proxy to use (comma separated or file input)"),
 	)
 
 	_ = flagSet.Parse()
+
+	if !options.Silent {
+		ShowBanner()
+	}
 
 	err := options.validateOptions()
 	if err != nil {
