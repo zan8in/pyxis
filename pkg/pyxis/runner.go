@@ -211,10 +211,12 @@ func (r *Runner) ApiListener() {
 
 func (r *Runner) start() {
 	defer close(r.ResultChan)
-
 	r.Phase.Set(Scan)
-
+	
 	for host := range r.hostChan {
+		// 等待 ticker，控制请求速率
+		<-r.ticker.C
+		
 		r.wgscan.Add()
 		go func(host string) {
 			defer r.wgscan.Done()

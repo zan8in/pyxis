@@ -1,6 +1,7 @@
 package pyxis
 
 import (
+	"fmt"
 	"runtime"
 
 	"github.com/pkg/errors"
@@ -95,5 +96,20 @@ func (options *Options) validateOptions() (err error) {
 
 func (options *Options) autoChangeRateLimit() {
 	NumCPU := runtime.NumCPU()
-	options.RateLimit = NumCPU * 50
+
+	// 更加保守的设置，防止初始爆发
+	switch {
+	case NumCPU <= 2:
+		options.RateLimit = 10 // 进一步降低
+	case NumCPU <= 4:
+		options.RateLimit = 20 // 进一步降低
+	case NumCPU <= 8:
+		options.RateLimit = 30 // 进一步降低
+	case NumCPU <= 16:
+		options.RateLimit = 40 // 进一步降低
+	default:
+		options.RateLimit = 50 // 进一步降低
+	}
+
+	fmt.Printf("[INFO] Auto-adjusted rate limit to %d based on %d CPU cores\n", options.RateLimit, NumCPU)
 }
