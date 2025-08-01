@@ -20,6 +20,7 @@ type Options struct {
 
 	Silent bool // Silent is the flag to show only results
 	Cdn    bool
+	Clear  bool // Clear is the flag to show only successful results
 }
 
 func ParseOptions() *Options {
@@ -43,6 +44,7 @@ func ParseOptions() *Options {
 		flagSet.IntVar(&options.Timeout, "timeout", DefaultTimeout, "millisecond to wait before timing out"),
 		flagSet.BoolVar(&options.Cdn, "cdn", false, "check if the host is a cdn"),
 		flagSet.BoolVar(&options.Silent, "silent", false, "only results only"),
+		flagSet.BoolVar(&options.Clear, "clear", false, "only show successful results"),
 	)
 
 	flagSet.CreateGroup("rate-limit", "Rate-limit",

@@ -32,6 +32,11 @@ type OutputResult struct {
 }
 
 func (r *Runner) print(result *result.HostResult) {
+	// 如果启用了Clear选项，跳过失败的结果
+	if r.Options.Clear && result.Flag != 0 {
+		return
+	}
+
 	// 如果启用了CDN选项，只显示CDN检测结果
 	if r.Options.Cdn {
 		if result.Flag == 0 {
@@ -49,10 +54,13 @@ func (r *Runner) print(result *result.HostResult) {
 				)
 			}
 		} else {
-			fmt.Printf("%s [%s]\n",
-				result.Host,
-				logcolor.LogColor.Failed("Failed to detect"),
-			)
+			// 如果启用了Clear，不显示失败结果
+			if !r.Options.Clear {
+				fmt.Printf("%s [%s]\n",
+					result.Host,
+					logcolor.LogColor.Failed("Failed to detect"),
+				)
+			}
 		}
 		return
 	}
@@ -67,25 +75,17 @@ func (r *Runner) print(result *result.HostResult) {
 			logcolor.LogColor.Faviconhash(result.FaviconHash),
 			logcolor.LogColor.IP(result.IP),
 			logcolor.LogColor.Cdn(result.Cdn),
-
-			// result.TLS,
-			// result.Host,
-			// result.Port,
-			// result.IP,
-			// result.StatusCode,
-			// result.ResponseTime,
-			// result.ContentLength,
-			// result.FaviconHash,
-			// result.FingerPrint,
 		)
 	} else {
-		fmt.Printf("%s [%s%s]\n",
-			result.Host,
-			logcolor.LogColor.Failed("Failed to access "),
-			logcolor.LogColor.Failed(result.Host),
-		)
+		// 如果启用了Clear，不显示失败结果
+		if !r.Options.Clear {
+			fmt.Printf("%s [%s%s]\n",
+				result.Host,
+				logcolor.LogColor.Failed("Failed to access "),
+				logcolor.LogColor.Failed(result.Host),
+			)
+		}
 	}
-
 }
 
 func (r *Runner) WriteOutput() {
