@@ -1,7 +1,6 @@
 package pyxis
 
 import (
-	"fmt"
 	"runtime"
 
 	"github.com/pkg/errors"
@@ -97,19 +96,17 @@ func (options *Options) validateOptions() (err error) {
 func (options *Options) autoChangeRateLimit() {
 	NumCPU := runtime.NumCPU()
 
-	// 更加保守的设置，防止初始爆发
+	// 针对指纹识别优化的更保守设置
 	switch {
 	case NumCPU <= 2:
-		options.RateLimit = 10 // 进一步降低
+		options.RateLimit = 8 // 从10降到8，确保/40后至少有1个指纹并发
 	case NumCPU <= 4:
-		options.RateLimit = 20 // 进一步降低
+		options.RateLimit = 16 // 从20降到16，/40后有1个指纹并发
 	case NumCPU <= 8:
-		options.RateLimit = 30 // 进一步降低
+		options.RateLimit = 24 // 从30降到24，/40后有1个指纹并发
 	case NumCPU <= 16:
-		options.RateLimit = 40 // 进一步降低
+		options.RateLimit = 32 // 从40降到32，/40后有1个指纹并发
 	default:
-		options.RateLimit = 50 // 进一步降低
+		options.RateLimit = 40 // 从50降到40，/40后有1个指纹并发
 	}
-
-	fmt.Printf("[INFO] Auto-adjusted rate limit to %d based on %d CPU cores\n", options.RateLimit, NumCPU)
 }

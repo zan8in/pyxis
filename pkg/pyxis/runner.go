@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -39,6 +40,9 @@ type Runner struct {
 	Phase Phase
 
 	cdnchecker *cdncheck.CDNChecker
+
+	// 新增：指纹识别专用并发控制
+	fingerprintSemaphore chan struct{}
 }
 
 func NewRunner(options *Options) (*Runner, error) {
@@ -95,6 +99,9 @@ func NewRunner(options *Options) (*Runner, error) {
 		ResultChan: make(chan *result.HostResult),
 		Result:     result.NewResult(),
 		cdnchecker: cdnchecker,
+
+		// 指纹识别并发限制为主并发的1/4，避免CPU过载
+		fingerprintSemaphore: make(chan struct{}, calculateFingerprintConcurrency(options.RateLimit)),
 	}
 
 	if err = retryhttpclient.Init(&retryhttpclient.Options{
@@ -212,11 +219,11 @@ func (r *Runner) ApiListener() {
 func (r *Runner) start() {
 	defer close(r.ResultChan)
 	r.Phase.Set(Scan)
-	
+
 	for host := range r.hostChan {
 		// 等待 ticker，控制请求速率
 		<-r.ticker.C
-		
+
 		r.wgscan.Add()
 		go func(host string) {
 			defer r.wgscan.Done()
@@ -295,7 +302,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 			}
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
+		result.FingerPrint = r.getFingerprintAsync(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
 	}
 
@@ -318,7 +325,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 			}
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
+		result.FingerPrint = r.getFingerprintAsync(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
 	}
 
@@ -340,7 +347,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 		result.Host = parseHost
 		result.IP = iputil.GetDomainIP(parseHost)
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
+		result.FingerPrint = r.getFingerprintAsync(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
 
 	case parsePort == "443":
@@ -358,7 +365,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 			gologger.Warning().Msgf("Failed to get CDN info for %s: %v", u.Hostname(), err)
 		}
 		result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-		result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
+		result.FingerPrint = r.getFingerprintAsync(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 		return result, nil
 
 	default:
@@ -380,7 +387,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 			result.TLS = true
 			result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
+			result.FingerPrint = r.getFingerprintAsync(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 			return result, err
 		}
 
@@ -403,7 +410,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 				result.TLS = true
 				result.FullUrl = HTTPS_PREFIX + parseHost + strPort
 				result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-				result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
+				result.FingerPrint = r.getFingerprintAsync(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 				return result, nil
 			}
 			result.Port = 80
@@ -422,7 +429,7 @@ func (r *Runner) ScanHost(host string) (result.HostResult, error) {
 			}
 			result.FullUrl = HTTP_PREFIX + parseHost + strPort
 			result.FaviconHash = favicon.FaviconHash(result.FullUrl, result.Body)
-			result.FingerPrint = getFingerprint(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
+			result.FingerPrint = r.getFingerprintAsync(result.FullUrl, result.RawBody, result.Raw, result.RawHeader, []byte(result.FaviconHash), int32(result.StatusCode), result.Headers)
 			return result, nil
 		}
 
@@ -513,4 +520,50 @@ func (r *Runner) GetDomainIPWithCDN(domain string) (string, string, error) {
 	}
 
 	return strings.Join(result.IPs, ","), formatCDNInfo(result.IsCDN, result.Provider), nil
+}
+
+// 新增：异步指纹识别函数
+func (r *Runner) getFingerprintAsync(target string, body, raw, rawheader, faviconhash []byte, status int32, headers map[string]string) string {
+	resultChan := make(chan string, 1)
+
+	go func() {
+		// 获取信号量，限制并发数
+		r.fingerprintSemaphore <- struct{}{}
+		defer func() { <-r.fingerprintSemaphore }()
+
+		// 执行指纹识别
+		fingerprint := getFingerprint(target, body, raw, rawheader, faviconhash, status, headers)
+		resultChan <- fingerprint
+	}()
+
+	// 设置超时，避免长时间阻塞
+	select {
+	case fingerprint := <-resultChan:
+		return fingerprint
+	case <-time.After(5 * time.Second):
+		return "" // 超时返回空字符串
+	}
+}
+
+func calculateFingerprintConcurrency(rateLimit int) int {
+	cpuCores := runtime.NumCPU()
+
+	// 根据CPU核心数动态调整除数
+	var divisor int
+	switch {
+	case cpuCores <= 2:
+		divisor = 80 // 极保守
+	case cpuCores <= 4:
+		divisor = 60 // 保守
+	case cpuCores <= 8:
+		divisor = 50 // 中等
+	case cpuCores <= 12:
+		divisor = 40 // 你当前的设置
+	case cpuCores <= 16:
+		divisor = 35 // 稍微激进
+	default:
+		divisor = 30 // 高性能CPU
+	}
+
+	return max(1, rateLimit/divisor)
 }
