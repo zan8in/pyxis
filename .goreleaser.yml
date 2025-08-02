@@ -21,10 +21,10 @@ builds:
       - -s
       - -w
 
+# 修复废弃的配置项
 archives:
-  - format: zip
-    id: pyxis
-    builds: [pyxis]
+  - formats: [zip]  # 替换 format: zip
+    ids: [pyxis]     # 替换 builds: [pyxis]
     name_template: '{{ .ProjectName }}_{{ .Version }}_{{ if eq .Os "darwin" }}macOS{{ else }}{{ .Os }}{{ end }}_{{ .Arch }}'
 
 checksum:

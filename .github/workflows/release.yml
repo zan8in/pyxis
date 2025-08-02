@@ -18,26 +18,38 @@ jobs:
 
       - uses: actions/setup-go@v4
         with:
-          go-version: 1.24.1
+          go-version: 1.21.x
 
       # 配置Git认证
       - name: Configure Git for private repos
         run: |
           git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "git@github.com:"
 
       # 设置Go私有模块环境变量
       - name: Set Go private module env
         run: |
-          echo "GOPRIVATE=github.com/zan8in/*" >> $GITHUB_ENV
+          echo "GOPRIVATE=github.com/zan8in" >> $GITHUB_ENV
           echo "GOPROXY=direct" >> $GITHUB_ENV
           echo "GOSUMDB=off" >> $GITHUB_ENV
+
+      # 验证Go模块下载
+      - name: Download Go modules
+        run: |
+          go mod download
+          go mod verify
+        env:
+          GOPRIVATE: "github.com/zan8in"
+          GOPROXY: "direct"
+          GOSUMDB: "off"
 
       - uses: goreleaser/goreleaser-action@v4
         with:
           args: "release --clean"
           version: latest
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          GOPRIVATE: "github.com/zan8in/*"
+          # 使用PRIVATE_REPO_TOKEN而不是GITHUB_TOKEN
+          GITHUB_TOKEN: "${{ secrets.PRIVATE_REPO_TOKEN }}"
+          GOPRIVATE: "github.com/zan8in"
           GOPROXY: "direct"
           GOSUMDB: "off"
