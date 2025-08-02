@@ -9,12 +9,15 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/remeh/sizedwaitgroup v1.0.0
 	github.com/spaolacci/murmur3 v1.1.0
+	github.com/zan8in/cdncheck v0.0.0-20250801100859-6cd29834eceb
+	github.com/zan8in/godns v0.0.0-20250801021524-eb4e1b4b8cf6
 	github.com/zan8in/goflags v0.0.0-20230204144650-0745934af58a
 	github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373
 	github.com/zan8in/libra v1.0.0
 	github.com/zan8in/pins v0.0.0-20230415064757-40257618b466
 	github.com/zan8in/retryablehttp v0.0.0-20250708033333-22f47dd0b7df
 	github.com/zan8in/stringsutil v0.0.0-20220917064022-03a0bd835142
+	golang.org/x/text v0.25.0
 )
 
 require (
@@ -38,14 +41,11 @@ require (
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
-	github.com/zan8in/cdncheck v0.0.0-20250801100859-6cd29834eceb // indirect
 	github.com/zan8in/fileutil v0.0.0-20220917063910-ce47dcc0cfa9 // indirect
-	github.com/zan8in/godns v0.0.0-20250801021524-eb4e1b4b8cf6 // indirect
 	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/sync v0.14.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
 	golang.org/x/tools v0.33.0 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
 	google.golang.org/protobuf v1.29.0 // indirect
