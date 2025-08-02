@@ -3,95 +3,39 @@ name: 🎉 Release Binary
 on:
   push:
     tags:
-      - "*"
+      - "v*" # 仅匹配版本标签，如 v1.0.0
   workflow_dispatch:
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      GOPRIVATE: github.com/zan8in
+      GOPROXY: https://proxy.golang.org,direct
+      GONOSUMDB: github.com/zan8in
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.21.x
+          go-version: 1.23.x # 使用最新 Go 版本
 
-      # 强力Git认证配置
-      - name: Configure Git authentication
+      - name: Configure Git for private repos
         run: |
-          # 方法1: 直接设置 Git 凭据
-          git config --global credential.helper store
-          echo "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com" > ~/.git-credentials
-          
-          # 方法2: 配置 URL 重写（多种格式）
           git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
-          git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "git@github.com:"
-          git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "ssh://git@github.com/"
-          
-          # 方法3: 设置用户信息
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          
-          # 方法4: 禁用交互式提示
-          git config --global core.askPass ""
-          
-          # 验证配置
-          echo "Git configuration:"
-          git config --global --list | grep -E "(url|credential|user)"
-          
-          # 测试访问
-          echo "Testing Git access:"
-          git ls-remote https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/zan8in/libra.git || echo "Git access test failed"
 
-      # 设置环境变量
-      - name: Set environment variables
+      - name: Download and verify Go modules
         run: |
-          echo "GOPRIVATE=github.com/zan8in" >> $GITHUB_ENV
-          echo "GOPROXY=https://proxy.golang.org,direct" >> $GITHUB_ENV
-          echo "GONOSUMDB=github.com/zan8in" >> $GITHUB_ENV
-          echo "GIT_TERMINAL_PROMPT=0" >> $GITHUB_ENV
-          echo "GIT_ASKPASS=echo" >> $GITHUB_ENV
-          echo "GIT_USERNAME=${{ secrets.PRIVATE_REPO_TOKEN }}" >> $GITHUB_ENV
-          echo "GIT_PASSWORD=" >> $GITHUB_ENV
-
-      # 强制清理并下载
-      - name: Force clean and download modules
-        run: |
-          # 完全清理
-          go clean -modcache
-          rm -rf ~/go/pkg/mod
-          
-          # 设置临时环境变量
-          export GOPRIVATE="github.com/zan8in"
-          export GOPROXY="https://proxy.golang.org,direct"
-          export GONOSUMDB="github.com/zan8in"
-          export GIT_TERMINAL_PROMPT="0"
-          export GIT_ASKPASS="echo"
-          
-          # 尝试下载
-          echo "Attempting to download modules..."
-          go mod download -x
-          
-          echo "Verifying modules..."
+          go mod download
           go mod verify
-        env:
-          GOPRIVATE: "github.com/zan8in"
-          GOPROXY: "https://proxy.golang.org,direct"
-          GONOSUMDB: "github.com/zan8in"
-          GIT_TERMINAL_PROMPT: "0"
-          GIT_ASKPASS: "echo"
 
-      - uses: goreleaser/goreleaser-action@v4
+      - uses: goreleaser/goreleaser-action@v5 # 确认最新版本
         with:
-          args: "release --clean"
+          args: release
           version: latest
         env:
-          GITHUB_TOKEN: "${{ secrets.PRIVATE_REPO_TOKEN }}"
-          GOPRIVATE: "github.com/zan8in"
-          GOPROXY: "https://proxy.golang.org,direct"
-          GONOSUMDB: "github.com/zan8in"
-          GIT_TERMINAL_PROMPT: "0"
+          GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
