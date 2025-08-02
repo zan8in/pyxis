@@ -15,12 +15,12 @@ jobs:
       GONOSUMDB: github.com/zan8in
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v4
         with:
           go-version: 1.23.x # 使用最新 Go 版本
 
