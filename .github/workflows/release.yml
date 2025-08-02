@@ -20,28 +20,39 @@ jobs:
         with:
           go-version: 1.21.x
 
-      # 配置Git认证
+      # 配置Git认证 - 增强版
       - name: Configure Git for private repos
         run: |
+          # 配置 Git 全局认证
           git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
           git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "git@github.com:"
+          
+          # 配置 Git 凭据存储
+          git config --global credential.helper store
+          echo "https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com" > ~/.git-credentials
+          
+          # 验证配置
+          git config --global --list | grep url
 
-      # 设置Go私有模块环境变量 - 精确配置
+      # 设置Go私有模块环境变量
       - name: Set Go private module env
         run: |
           echo "GOPRIVATE=github.com/zan8in" >> $GITHUB_ENV
           echo "GOPROXY=https://proxy.golang.org,direct" >> $GITHUB_ENV
           echo "GONOSUMDB=github.com/zan8in" >> $GITHUB_ENV
+          echo "GIT_TERMINAL_PROMPT=0" >> $GITHUB_ENV
 
-      # 验证Go模块下载
-      - name: Download Go modules
+      # 清理并重新下载模块
+      - name: Clean and download Go modules
         run: |
+          go clean -modcache
           go mod download
           go mod verify
         env:
           GOPRIVATE: "github.com/zan8in"
           GOPROXY: "https://proxy.golang.org,direct"
           GONOSUMDB: "github.com/zan8in"
+          GIT_TERMINAL_PROMPT: "0"
 
       - uses: goreleaser/goreleaser-action@v4
         with:
@@ -52,3 +63,4 @@ jobs:
           GOPRIVATE: "github.com/zan8in"
           GOPROXY: "https://proxy.golang.org,direct"
           GONOSUMDB: "github.com/zan8in"
+          GIT_TERMINAL_PROMPT: "0"
