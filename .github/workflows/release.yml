@@ -26,12 +26,12 @@ jobs:
           git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
           git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "git@github.com:"
 
-      # 设置Go私有模块环境变量
+      # 设置Go私有模块环境变量 - 精确配置
       - name: Set Go private module env
         run: |
           echo "GOPRIVATE=github.com/zan8in" >> $GITHUB_ENV
-          echo "GOPROXY=direct" >> $GITHUB_ENV
-          echo "GOSUMDB=off" >> $GITHUB_ENV
+          echo "GOPROXY=https://proxy.golang.org,direct" >> $GITHUB_ENV
+          echo "GONOSUMDB=github.com/zan8in" >> $GITHUB_ENV
 
       # 验证Go模块下载
       - name: Download Go modules
@@ -40,16 +40,15 @@ jobs:
           go mod verify
         env:
           GOPRIVATE: "github.com/zan8in"
-          GOPROXY: "direct"
-          GOSUMDB: "off"
+          GOPROXY: "https://proxy.golang.org,direct"
+          GONOSUMDB: "github.com/zan8in"
 
       - uses: goreleaser/goreleaser-action@v4
         with:
           args: "release --clean"
           version: latest
         env:
-          # 使用PRIVATE_REPO_TOKEN而不是GITHUB_TOKEN
           GITHUB_TOKEN: "${{ secrets.PRIVATE_REPO_TOKEN }}"
           GOPRIVATE: "github.com/zan8in"
-          GOPROXY: "direct"
-          GOSUMDB: "off"
+          GOPROXY: "https://proxy.golang.org,direct"
+          GONOSUMDB: "github.com/zan8in"
