@@ -14,10 +14,23 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
       - uses: actions/setup-go@v4
         with:
           go-version: 1.24.1
+
+      # 配置Git认证
+      - name: Configure Git for private repos
+        run: |
+          git config --global url."https://${{ secrets.PRIVATE_REPO_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      # 设置Go私有模块环境变量
+      - name: Set Go private module env
+        run: |
+          echo "GOPRIVATE=github.com/zan8in/*" >> $GITHUB_ENV
+          echo "GOPROXY=direct" >> $GITHUB_ENV
+          echo "GOSUMDB=off" >> $GITHUB_ENV
 
       - uses: goreleaser/goreleaser-action@v4
         with:
@@ -25,3 +38,6 @@ jobs:
           version: latest
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GOPRIVATE: "github.com/zan8in/*"
+          GOPROXY: "direct"
+          GOSUMDB: "off"

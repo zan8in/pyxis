@@ -11,7 +11,7 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0
 	github.com/zan8in/goflags v0.0.0-20230204144650-0745934af58a
 	github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373
-	github.com/zan8in/libra v0.0.0-20230906060448-63210cf333fb
+	github.com/zan8in/libra v1.0.0
 	github.com/zan8in/pins v0.0.0-20230415064757-40257618b466
 	github.com/zan8in/retryablehttp v0.0.0-20250708033333-22f47dd0b7df
 	github.com/zan8in/stringsutil v0.0.0-20220917064022-03a0bd835142

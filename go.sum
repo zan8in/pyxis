@@ -93,6 +93,8 @@ github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373 h1:T2YD/hp647jDauu
 github.com/zan8in/gologger v0.0.0-20220917062627-c34a83c0a373/go.mod h1:z3Zn3+DLpcfFKNqhAdYECiFeFK+o1EW3Gh0DEhFZ+v4=
 github.com/zan8in/libra v0.0.0-20230906060448-63210cf333fb h1:TKBVdK5ZBXCL/SzBQRfEacjQbWzOOKKKTVaB7qgZ5Po=
 github.com/zan8in/libra v0.0.0-20230906060448-63210cf333fb/go.mod h1:3UAKs4kqIuLhRlSU6Ad3V1Bhjf/4Frs7DPV+r02vtj0=
+github.com/zan8in/libra v1.0.0 h1:mUG18cqu9wlIkwPq/VhQFuYWb3oFhZFe348nuR+t7IU=
+github.com/zan8in/libra v1.0.0/go.mod h1:2A7u8Uvd2UQ0eZ3PCmUWy4uQuBRC2l1g5elzKJ5C7LQ=
 github.com/zan8in/pins v0.0.0-20230415064757-40257618b466 h1:3FGXsUq3s+y8D4XJY8xwWHsBSxuDs9bOqaSUokZ2wW0=
 github.com/zan8in/pins v0.0.0-20230415064757-40257618b466/go.mod h1:hwq0CUJ14mXaWUCNaD2WXj7aKwUJfuOP0fIt9mpy6i0=
 github.com/zan8in/retryablehttp v0.0.0-20230424151727-99fdd3c661d7 h1:hso8sYwVmhfP+c1WWxwGV53vveVHlJyNNDpWrdprAHs=
