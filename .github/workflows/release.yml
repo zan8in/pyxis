@@ -33,9 +33,12 @@ jobs:
           go mod download
           go mod verify
 
-      - uses: goreleaser/goreleaser-action@v5 # 确认最新版本
+      - uses: goreleaser/goreleaser-action@v4
         with:
-          args: release
-          version: latest
+          args: release --clean # 添加 --clean
+          version: "~> v2" # 修改版本
         env:
           GITHUB_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          GOPRIVATE: github.com/zan8in # 添加环境变量
+          GOPROXY: https://proxy.golang.org,direct
+          GONOSUMDB: github.com/zan8in
