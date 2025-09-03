@@ -41,7 +41,7 @@ func ParseOptions() *Options {
 
 	flagSet.CreateGroup("optimization", "Optimization",
 		flagSet.IntVar(&options.Retries, "retries", DefaultRetries, "number of retries for the port scan"),
-		flagSet.IntVar(&options.Timeout, "timeout", DefaultTimeout, "millisecond to wait before timing out"),
+		flagSet.IntVar(&options.Timeout, "timeout", DefaultTimeout, "seconds to wait before timing out"),
 		flagSet.BoolVar(&options.Cdn, "cdn", false, "check if the host is a cdn"),
 		flagSet.BoolVar(&options.Silent, "silent", false, "only results only"),
 		flagSet.BoolVar(&options.Clear, "clear", false, "only show successful results"),

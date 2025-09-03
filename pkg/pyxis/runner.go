@@ -227,9 +227,31 @@ func (r *Runner) start() {
 		r.wgscan.Add()
 		go func(host string) {
 			defer r.wgscan.Done()
-			if rst, err := r.ScanHost(host); err == nil {
+			
+			// 为每个target设置全局超时（30秒）
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			
+			// 使用channel接收结果，支持超时控制
+			resultChan := make(chan result.HostResult, 1)
+			errorChan := make(chan error, 1)
+			
+			go func() {
+				if rst, err := r.ScanHost(host); err == nil {
+					resultChan <- rst
+				} else {
+					errorChan <- err
+				}
+			}()
+			
+			select {
+			case rst := <-resultChan:
 				r.ResultChan <- &rst
-			} else {
+			case <-errorChan:
+				r.ResultChan <- &result.HostResult{Host: host, Flag: 1}
+			case <-ctx.Done():
+				// 超时处理
+				gologger.Warning().Msgf("Target %s 扫描超时，跳过", host)
 				r.ResultChan <- &result.HostResult{Host: host, Flag: 1}
 			}
 		}(host)
