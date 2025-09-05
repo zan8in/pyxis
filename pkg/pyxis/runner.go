@@ -56,6 +56,7 @@ func NewRunner(options *Options) (*Runner, error) {
 	opts := []cdncheck.Option{
 		cdncheck.WithRetries(options.Retries),
 		cdncheck.WithTimeout(time.Duration(options.Timeout) * time.Second),
+		cdncheck.WithDNSServers("8.8.8.8:53", "1.1.1.1:53"),
 	}
 
 	// 处理代理配置
@@ -227,15 +228,15 @@ func (r *Runner) start() {
 		r.wgscan.Add()
 		go func(host string) {
 			defer r.wgscan.Done()
-			
+
 			// 为每个target设置全局超时（30秒）
 			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
-			
+
 			// 使用channel接收结果，支持超时控制
 			resultChan := make(chan result.HostResult, 1)
 			errorChan := make(chan error, 1)
-			
+
 			go func() {
 				if rst, err := r.ScanHost(host); err == nil {
 					resultChan <- rst
@@ -243,7 +244,7 @@ func (r *Runner) start() {
 					errorChan <- err
 				}
 			}()
-			
+
 			select {
 			case rst := <-resultChan:
 				r.ResultChan <- &rst
