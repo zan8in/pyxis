@@ -1,6 +1,7 @@
 package pyxis
 
 import (
+	"os"
 	"runtime"
 
 	"github.com/pkg/errors"
@@ -21,6 +22,8 @@ type Options struct {
 	Silent bool // Silent is the flag to show only results
 	Cdn    bool
 	Clear  bool // Clear is the flag to show only successful results
+
+	Version bool
 }
 
 func ParseOptions() *Options {
@@ -33,6 +36,10 @@ func ParseOptions() *Options {
 	flagSet.CreateGroup("input", "Input",
 		flagSet.StringSliceVarP(&options.Host, "t", "target", nil, "hosts to scan ports for (comma-separated)", goflags.NormalizedStringSliceOptions),
 		flagSet.StringVarP(&options.HostsFile, "T", "target-file", "", "list of hosts to scan ports (file)"),
+	)
+
+	flagSet.CreateGroup("version", "Version",
+		flagSet.BoolVar(&options.Version, "version", false, "show version"),
 	)
 
 	flagSet.CreateGroup("output", "Output",
@@ -75,6 +82,10 @@ var (
 )
 
 func (options *Options) validateOptions() (err error) {
+
+	if options.Version {
+		os.Exit(0)
+	}
 
 	if options.Host == nil && options.HostsFile == "" {
 		return errNoInputList

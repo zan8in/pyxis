@@ -56,7 +56,7 @@ func NewRunner(options *Options) (*Runner, error) {
 	opts := []cdncheck.Option{
 		cdncheck.WithRetries(options.Retries),
 		cdncheck.WithTimeout(time.Duration(options.Timeout) * time.Second),
-		cdncheck.WithDNSServers("8.8.8.8:53", "1.1.1.1:53"),
+		cdncheck.WithDoH(),
 	}
 
 	// 处理代理配置
@@ -536,10 +536,10 @@ func (r *Runner) GetDomainIPWithCDN(domain string) (string, string, error) {
 	}
 
 	// 特殊情况处理
-	// 如果不是CDN但是有两个IP，认为是负载均衡
-	if !result.IsCDN && len(result.IPs) == 2 {
+	// 如果不是CDN但是有两个或更多IP，认为是CDN
+	if !result.IsCDN && len(result.IPs) >= 2 {
 		result.IsCDN = true
-		result.Provider = "负载均衡"
+		result.Provider = ""
 	}
 
 	return strings.Join(result.IPs, ","), formatCDNInfo(result.IsCDN, result.Provider), nil
